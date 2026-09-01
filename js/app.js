@@ -6,6 +6,7 @@ import { APP_VERSION } from "./config.js";
 import * as auth from "./auth.js";
 import * as trips from "./trips.js";
 import * as tpls from "./templates.js";
+import * as guide from "./guide.js";
 import * as checklist from "./checklist.js";
 import * as store from "./store.js";
 
@@ -24,7 +25,7 @@ if (!isConfigured) {
 
 /* -------------------------------- 路由 ---------------------------------- */
 
-const VIEWS = ["view-auth", "view-trips", "view-new", "view-trip", "view-templates"];
+const VIEWS = ["view-auth", "view-trips", "view-new", "view-trip", "view-guide", "view-templates"];
 
 function showView(id) {
   VIEWS.forEach((v) => $(v).classList.toggle("on", v === id));
@@ -33,7 +34,8 @@ function showView(id) {
     checklist.leave();
   }
   $("appbar").hidden = id === "view-auth";
-  const navFor = id === "view-templates" ? "templates" : "trips";
+  const navFor =
+    id === "view-templates" ? "templates" : id === "view-guide" ? "guide" : "trips";
   document.querySelectorAll("#appbar nav a").forEach((a) => {
     if (a.dataset.nav === navFor && id !== "view-auth") a.setAttribute("aria-current", "page");
     else a.removeAttribute("aria-current");
@@ -63,6 +65,12 @@ async function route() {
     if (!user) {
       auth.resetAuthView();
       showView("view-auth");
+      return;
+    }
+
+    if (head === "guide") {
+      guide.render();
+      showView("view-guide");
       return;
     }
 
@@ -189,6 +197,7 @@ function maybeOpenHelp() {
   else if (!seen("warnSeen")) openWarn();
 }
 
+$("helpGuide").onclick = () => { closeHelp(); location.hash = "#/guide"; };
 $("helpFab").onclick = openHelp;
 $("helpX").onclick = closeHelp;
 $("helpOk").onclick = closeHelp;

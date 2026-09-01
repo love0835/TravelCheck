@@ -17,6 +17,7 @@
     <nav>
       <a href="#/trips" data-nav="trips">我的清單</a>
       <a href="#/templates" data-nav="templates">模板</a>
+      <a href="#/guide" data-nav="guide">教學</a>
     </nav>
     <span class="who"><span id="whoEmail"></span><button id="btnLogout">登出</button></span>
   </div>
@@ -95,9 +96,7 @@
     </div>
     <p class="msg" id="tripsMsg"></p>
     <div class="tripgrid" id="tripGrid"></div>
-    <div class="empty" id="tripEmpty" hidden>
-      還沒有任何清單。<br>按上面的「＋ 新增清單」，挑幾個模板就能開始。
-    </div>
+    <div id="tripEmpty" hidden></div>
     <footer>清單與模板都存在你的帳號裡。想留一份離線副本，按「匯出備份」下載 JSON 檔。</footer>
   </div>
 </section>
@@ -168,6 +167,9 @@
 
   <footer id="tripFoot">勾選會即時存到你的帳號，換裝置登入就看得到。</footer>
 </main>
+
+<!-- ======================= 新手教學（內容由 js/guide.js 產生） ======================= -->
+<section class="view" id="view-guide"></section>
 
 <!-- ======================= 模板編輯 ======================= -->
 <section class="view" id="view-templates">
@@ -279,7 +281,8 @@
       <p class="sub">想留離線副本，到「我的清單」按<b>匯出備份</b>下載 JSON 檔。</p>
     </div>
     <div class="hfoot">
-      <span>之後可按右下角的<b> ? </b>隨時打開</span>
+      <span>想看更完整的說明，按上面的<b>「教學」</b></span>
+      <button id="helpGuide" type="button">看完整教學</button>
       <button id="helpOk">開始使用</button>
     </div>
   </div>

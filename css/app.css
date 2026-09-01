@@ -486,3 +486,82 @@ body.noscroll{overflow:hidden}
 #tmplOk{background:var(--sea);color:#fff;border-color:var(--sea);font-size:13.5px;padding:8px 16px}
 #tmplMsg{font-size:11.5px;line-height:1.5}
 @media (min-width:700px){#tmplOv{align-items:center}#tmplBox{border-radius:10px}}
+
+/* ===========================================================================
+   3. 新手教學與空清單引導
+   ========================================================================== */
+
+/* --- 空清單時的三步驟引導 --- */
+.onboard{margin:16px 0 8px;border:1px solid var(--rule);border-left:5px solid var(--sea);
+  border-radius:3px;background:#F7FAF4;padding:18px 18px 16px}
+.onboard h2{font-size:17px;margin:0 0 12px;font-weight:700}
+.onboard ol{list-style:none;counter-reset:ob;margin:0;padding:0;border-top:0}
+.onboard ol li{counter-increment:ob;border-bottom:0;display:block;
+  position:relative;padding:0 0 13px 34px;line-height:1.7}
+.onboard ol li::before{content:counter(ob);position:absolute;left:0;top:1px;
+  width:22px;height:22px;border-radius:50%;background:var(--sea);color:#F1F5EE;
+  font-size:12px;font-weight:700;line-height:22px;text-align:center}
+.onboard ol li b{display:block;font-size:14.5px}
+.onboard ol li span{display:block;font-size:12.5px;color:var(--muted);margin-top:2px}
+.onboard .btnrow{margin-top:4px}
+
+/* --- 教學頁 --- */
+.guidewrap{padding-bottom:20px}
+.gsec{margin-top:26px;border-top:1px solid var(--rule);padding-top:18px}
+.gsec:first-of-type{border-top:0}
+.gsec h2{font-size:16.5px;margin:0 0 10px;font-weight:700;
+  display:flex;align-items:center;gap:9px}
+.gnum{flex:0 0 auto;width:24px;height:24px;border-radius:50%;
+  background:var(--sea);color:#F1F5EE;font-size:12.5px;font-weight:700;
+  line-height:24px;text-align:center}
+.gsec p{margin:0 0 10px;font-size:13.5px;line-height:1.8}
+.gk{display:inline-block;font-size:12.5px;font-weight:700;color:var(--sea);
+  background:#E6EDE2;border:1px solid #C8D6C2;border-radius:12px;
+  padding:1px 9px;margin:0 1px;white-space:nowrap}
+.gnote{border-left:3px solid var(--sea-soft);padding:4px 0 4px 12px;
+  color:var(--muted);font-size:12.5px!important;line-height:1.75!important}
+.gwarn{border-left:3px solid var(--alert);padding:4px 0 4px 12px;
+  color:#7E4136;font-size:12.5px!important;line-height:1.75!important}
+.gwarn b{color:var(--alert)}
+
+.gsteps{list-style:none;counter-reset:gs;margin:0 0 12px;padding:0;border-top:0}
+.gsteps li{counter-increment:gs;border-bottom:0;display:block;position:relative;
+  padding:0 0 11px 30px;font-size:13.5px;line-height:1.8}
+.gsteps li::before{content:counter(gs) ".";position:absolute;left:6px;top:0;
+  color:var(--sea);font-weight:700;font-variant-numeric:tabular-nums}
+.gbullets{list-style:none;margin:0 0 12px;padding:0;border-top:0}
+.gbullets li{border-bottom:0;display:block;position:relative;
+  padding:0 0 9px 18px;font-size:13.5px;line-height:1.8}
+.gbullets li::before{content:"";position:absolute;left:3px;top:11px;
+  width:6px;height:6px;border-radius:2px;background:var(--sea-soft);transform:rotate(45deg)}
+
+.gtable,.gqa{border-top:1px solid var(--rule);margin:0 0 12px}
+.gtable > div,.gqa > div{border-bottom:1px solid var(--rule);padding:10px 0}
+.gtable b,.gqa b{display:block;font-size:13.5px;margin-bottom:3px}
+.gtable span,.gqa span{display:block;font-size:12.5px;color:var(--muted);line-height:1.75}
+.gqa b{color:var(--sea)}
+
+/* 清單 vs 模板 的示意圖 */
+.gdiagram{display:flex;align-items:flex-start;gap:10px;margin:4px 0 14px;
+  background:#F7FAF4;border:1px solid var(--rule);border-radius:3px;padding:13px 12px}
+.gcol{flex:1 1 0;min-width:0;display:flex;flex-direction:column;gap:7px}
+.gcolhead{font-size:11px;letter-spacing:.08em;color:var(--muted);font-weight:700;
+  margin-bottom:1px}
+.gbox{border:1px solid var(--rule);border-radius:2px;background:#fff;
+  padding:7px 9px;font-size:12.5px;font-weight:700;line-height:1.4}
+.gbox.tpl{border-left:4px solid var(--sea-soft)}
+.gbox.trip{border-left:4px solid var(--sea)}
+.gbox small{display:block;font-size:11px;font-weight:400;color:var(--muted);
+  margin-top:3px;line-height:1.5}
+.garrow{flex:0 0 auto;color:var(--sea-soft);align-self:center}
+@media (max-width:460px){
+  .gdiagram{flex-direction:column}
+  .garrow{align-self:center;transform:rotate(90deg);height:34px;display:flex;align-items:center}
+  .garrow svg{width:30px;height:90px}
+}
+
+/* 三種狀態的互動示範：沿用清單本身的樣式 */
+.gdemo{border-top:1px solid var(--rule);margin:0 0 12px;cursor:pointer}
+.gdemo li{border-bottom:1px solid var(--rule)}
+
+@media print{.gsec{break-inside:avoid}}

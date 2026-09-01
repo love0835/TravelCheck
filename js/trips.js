@@ -45,6 +45,7 @@ function progressOf(trip, tplIds, itemsByTpl, statesByTrip, customsByTrip) {
 function showLoadError(err) {
   const box = document.getElementById("tripEmpty");
   box.hidden = false;
+  box.className = "empty";
   box.innerHTML =
     "<b>載入失敗</b><br>" + esc(errText(err)) + "<br><br>" +
     '<button class="btn primary" id="btnRetryLoad">重試</button> ' +
@@ -64,6 +65,29 @@ export function hardReset() {
   } catch (e) {}
   location.hash = "#/login";
   location.reload();
+}
+
+// 第一次登入看到的就是這一頁，所以空清單時直接給三步驟引導，
+// 而不是只寫一句「還沒有任何清單」
+function paintOnboarding() {
+  const box = document.getElementById("tripEmpty");
+  box.className = "onboard";
+  box.innerHTML = `
+    <h2>歡迎！三個步驟就能開始</h2>
+    <ol>
+      <li><b>開一份清單</b><span>按下面的按鈕，取個名字，例如「成都旅遊」。
+          一次旅行開一份，之後每趟都能再開新的。</span></li>
+      <li><b>挑這趟要用的模板</b><span>一般行程的已經幫你勾好了。
+          高山、海邊、滑雪、露營、寵物這幾類要自己加。</span></li>
+      <li><b>開始勾</b><span>東西收好一樣就點一樣，進度條會告訴你還剩幾項。
+          勾選自動存，換手機登入一樣看得到。</span></li>
+    </ol>
+    <div class="btnrow">
+      <button class="btn primary" id="obNew">＋ 建立第一份清單</button>
+      <button class="btn ghost" id="obGuide">先看教學</button>
+    </div>`;
+  document.getElementById("obNew").onclick = () => { location.hash = "#/trips/new"; };
+  document.getElementById("obGuide").onclick = () => { location.hash = "#/guide"; };
 }
 
 /* ---------------------------- 總覽畫面 ----------------------------------- */
@@ -119,6 +143,7 @@ export async function render() {
 
   grid.innerHTML = "";
   $("tripEmpty").hidden = trips.length > 0;
+  if (!trips.length) paintOnboarding();
 
   trips.forEach((trip) => {
     const tplIds = linksByTrip.get(trip.id) || [];

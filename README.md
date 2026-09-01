@@ -6,6 +6,7 @@
 - **模板**：31 個公用模板（唯讀），可複製成自己的自由增刪，也能從零新建
 - **多份清單**：成都旅遊、遼寧旅遊各開一份，進度互不影響
 - **模板一改，清單跟著變**：清單只「引用」模板，不複製內容
+- **內建教學**：導覽列的「教學」有完整說明，第一次登入的空清單頁有三步驟引導
 
 畫面與手機操作手感沿用原始單檔版（`legacy/v260901n.html`），資料層換成 Supabase。
 
@@ -108,15 +109,24 @@ js/store.js                寫入佇列：畫面先改，批次寫回，斷線�
 js/checklist.js            清單內頁（原本那個畫面）
 js/trips.js                清單總覽、新增清單、匯出匯入
 js/templates.js            模板編輯介面
+js/guide.js                新手教學頁
 js/icons.js  js/minskip.js 圖示與極簡模式清單（取自 legacy）
 db/schema.sql              建表與 RLS
 db/seed_public_templates.sql  公用模板資料（自動產生，勿手改）
 tools/extract-seed.mjs     從 legacy HTML 重新產生上面那份 seed
 tools/mock-supabase.js     本機試用版用的假 Supabase
+tools/make-dev-test.mjs    由 index.html 產生 dev-test.html
 legacy/v260901n.html       原始單檔版，保留備查
 ```
 
-重新產生 seed：
+`dev-test.html` 是由 `index.html` 產生的，**改完 index.html 記得重跑**，
+否則本機試用版會跟正式站對不起來：
+
+```bash
+node tools/make-dev-test.mjs
+```
+
+重新產生公用模板 seed（只有動到 `legacy/v260901n.html` 才需要）：
 
 ```bash
 node tools/extract-seed.mjs > db/seed_public_templates.sql
