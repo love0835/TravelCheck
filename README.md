@@ -45,22 +45,26 @@ python3 -m http.server 8000
 
 ### 3. 設定登入方式
 
-- **Authentication → Providers → Email**：把 **Confirm email** 關掉
-  （不關的話，使用者註冊完要先去收驗證信才能登入）
+- **Authentication → Sign In / Providers → Email**：把 **Confirm email** 關掉
+  （不關的話，使用者註冊完要先去收驗證信才能登入。程式有處理這個情況，
+  會提示去收信，但自己人用的話關掉方便得多）
 - **Authentication → URL Configuration → Site URL**：填你的網站網址，
   例如 `https://love0835.github.io/TravelCheck/`
 
 ### 4. 填連線資訊並開站
 
-**Project Settings → API** 複製兩個值，填進 `js/config.js`：
+在 Supabase 專案首頁按網址旁邊的 **Copy**，取得 **Project URL** 與 **Publishable key**
+（新版格式是 `sb_publishable_...`；比較舊的專案是 Project Settings → API 裡
+`eyJ...` 開頭的 anon key，兩種這個專案都支援）。填進 `js/config.js`：
 
 ```js
 export const SUPABASE_URL = "https://xxxxxxxx.supabase.co";
-export const SUPABASE_ANON_KEY = "eyJhbGci....";
+export const SUPABASE_KEY = "sb_publishable_....";
 ```
 
-> 這兩個值本來就設計成公開（前端一定看得到），實際權限完全由資料庫的 RLS 規則把關，
-> 放在 GitHub 公開儲存庫上是安全的。**千萬不要**把 `service_role` key 放進來。
+> 這兩個值本來就設計成公開（前端一定看得到，key 的名字就叫 publishable），
+> 實際權限完全由資料庫的 RLS 規則把關，放在 GitHub 公開儲存庫上是安全的。
+> **千萬不要**把 `service_role` 或 `secret` key 放進來。
 
 commit 並 push 之後，到 GitHub 儲存庫的 **Settings → Pages**，
 Source 選 **Deploy from a branch**，挑你的分支與根目錄，儲存。

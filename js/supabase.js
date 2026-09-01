@@ -1,11 +1,11 @@
 // Supabase client（從 CDN 載入，不需要任何 build 步驟）
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.58.0/+esm";
-import { SUPABASE_URL, SUPABASE_ANON_KEY, configured } from "./config.js";
+import { SUPABASE_URL, SUPABASE_KEY, configured } from "./config.js";
 
 export const isConfigured = configured();
 
 export const sb = isConfigured
-  ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  ? createClient(SUPABASE_URL, SUPABASE_KEY, {
       auth: { persistSession: true, autoRefreshToken: true },
     })
   : null;
