@@ -26,11 +26,20 @@ function debounce(key, fn, ms = 450) {
 }
 
 export async function render(preferId) {
-  const [tpl, items, links] = await Promise.all([
-    api.fetchTemplates(),
-    api.fetchTemplateItems(),
-    api.fetchTripTemplates(null),
-  ]);
+  let tpl, items, links;
+  try {
+    [tpl, items, links] = await api.guarded(
+      () => Promise.all([api.fetchTemplates(), api.fetchTemplateItems(), api.fetchTripTemplates(null)]),
+      "讀取模板",
+    );
+  } catch (e) {
+    $("tplSide").innerHTML = "";
+    $("tplMain").innerHTML =
+      "<p><b>載入失敗</b></p><p class=\"ghint\">" + esc(errText(e)) + "</p>" +
+      '<div class="btnrow"><button class="btn primary" id="btnRetryTpl">重試</button></div>';
+    $("btnRetryTpl").onclick = () => render(preferId);
+    return;
+  }
   templates = tpl;
   itemsByTpl = new Map();
   items.forEach((it) => {

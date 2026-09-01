@@ -5,7 +5,9 @@
 // 正式站不會載到這支檔案。
 // -----------------------------------------------------------------------------
 const LS = "mock_sb_db_v1";
-const SESS = "mock_sb_session_v1";
+// 跟真的 supabase-js 一樣用 sb-<ref>-auth-token 命名，
+// 這樣「清除本機登入狀態」的行為在這裡測到的才等同正式站
+const SESS = "sb-localtest-auth-token";
 
 const PK = {
   templates: ["id"],
@@ -232,6 +234,14 @@ class Q {
   }
 
   then(resolve, reject) {
+    // 測試用的故障注入：?mockhang=1 讓查詢永遠不回來，?mockfail=1 讓查詢報錯
+    const qs = new URLSearchParams(location.search);
+    if (qs.get("mockhang") === "1" && this.table !== "templates_never") return new Promise(() => {});
+    if (qs.get("mockfail") === "1") {
+      return Promise.resolve()
+        .then(() => ({ data: null, error: { message: "JWT issued at future" } }))
+        .then(resolve, reject);
+    }
     return Promise.resolve().then(() => this.run()).then(resolve, reject);
   }
 }

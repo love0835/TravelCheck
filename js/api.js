@@ -15,6 +15,35 @@ export async function uid() {
   return data?.user?.id || null;
 }
 
+/* ------------------------- 逾時與重試的保護殼 ---------------------------- */
+// Supabase 偶爾會在更新 token 時卡住，讓請求永遠不回來。沒有逾時的話，
+// 畫面就會一直停在「載入中」而且完全不報錯，所以每一批查詢都套這層。
+const TIMEOUT_MS = 15000;
+const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+
+export async function guarded(fn, label) {
+  for (let attempt = 0; ; attempt++) {
+    let timer;
+    try {
+      return await Promise.race([
+        fn(),
+        new Promise((_, rej) => {
+          timer = setTimeout(() => rej(new Error(label + "逾時，伺服器 15 秒內沒有回應。")), TIMEOUT_MS);
+        }),
+      ]);
+    } catch (e) {
+      // 時鐘偏差造成的 JWT 錯誤（例如 "JWT issued at future"）等一下就會自己好
+      if (attempt === 0 && /issued at future|jwt|token/i.test(String(e.message || e))) {
+        await wait(2500);
+        continue;
+      }
+      throw e;
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+}
+
 /* ------------------------------- 模板 ------------------------------------ */
 
 // RLS 已經把可見範圍限制成「公用 + 自己的」，所以直接全撈即可。

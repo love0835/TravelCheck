@@ -48,8 +48,14 @@ function parse() {
 }
 
 let routing = false;
+let pendingRoute = false;
 async function route() {
-  if (routing) return;
+  // 路由途中又切換了網址就記下來，等這一輪結束再跑一次，
+  // 不要像以前那樣直接丟掉（一旦某次載入卡住，整個 app 就再也不理人）
+  if (routing) {
+    pendingRoute = true;
+    return;
+  }
   routing = true;
   try {
     const { head, rest } = parse();
@@ -91,9 +97,13 @@ async function route() {
     await trips.render();
   } catch (e) {
     console.error(e);
-    store.toast("載入失敗：" + (e.message || e), "err");
+    store.toast("載入失敗：" + (e.message || e) + "（可按左上角『我的清單』重試）", "err");
   } finally {
     routing = false;
+    if (pendingRoute) {
+      pendingRoute = false;
+      route();
+    }
   }
 }
 
@@ -110,10 +120,17 @@ auth.initAuthView(() => {
   // 登入成功後由 onAuthStateChange 接手導頁
 });
 
+// 登出一定要能登出：卡住的請求不該讓人困在裡面出不來
+const raceTimeout = (p, ms) =>
+  Promise.race([p, new Promise((r) => setTimeout(r, ms))]).catch(() => {});
+
 $("btnLogout").onclick = async () => {
-  await store.flushNow();
-  await auth.signOut();
-  location.hash = "#/login";
+  const btn = $("btnLogout");
+  btn.disabled = true;
+  await raceTimeout(store.flushNow(), 2000);
+  await raceTimeout(auth.signOut(), 3000);
+  // signOut 沒回來也要把本機的 session 清乾淨，否則重整後又回到卡住的狀態
+  trips.hardReset();
 };
 
 auth.onAuthChange(async (u) => {

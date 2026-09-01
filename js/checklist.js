@@ -62,16 +62,20 @@ function savePrefs() {
 /* ------------------------------ 載入清單 -------------------------------- */
 
 export async function load(tripId) {
-  trip = await api.getTrip(tripId);
+  trip = await api.guarded(() => api.getTrip(tripId), "讀取清單");
   if (!trip) return false;
 
-  const [templates, items, links, states, customs] = await Promise.all([
-    api.fetchTemplates(),
-    api.fetchTemplateItems(),
-    api.fetchTripTemplates([tripId]),
-    api.fetchItemStates(tripId),
-    api.fetchCustomItems(tripId),
-  ]);
+  const [templates, items, links, states, customs] = await api.guarded(
+    () =>
+      Promise.all([
+        api.fetchTemplates(),
+        api.fetchTemplateItems(),
+        api.fetchTripTemplates([tripId]),
+        api.fetchItemStates(tripId),
+        api.fetchCustomItems(tripId),
+      ]),
+    "讀取清單內容",
+  );
 
   allTemplates = templates;
   usedIds = links.map((l) => l.template_id);

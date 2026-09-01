@@ -41,6 +41,31 @@ function progressOf(trip, tplIds, itemsByTpl, statesByTrip, customsByTrip) {
   return { done, total };
 }
 
+// 載入失敗時給一個看得懂的說明和兩個出口，不要讓畫面永遠停在「載入中」
+function showLoadError(err) {
+  const box = document.getElementById("tripEmpty");
+  box.hidden = false;
+  box.innerHTML =
+    "<b>載入失敗</b><br>" + esc(errText(err)) + "<br><br>" +
+    '<button class="btn primary" id="btnRetryLoad">重試</button> ' +
+    '<button class="btn ghost" id="btnHardReset">清除本機登入狀態</button>' +
+    '<p class="ghint" style="margin-top:10px">如果重試沒用，按右邊那顆會清掉這台裝置存的登入資訊並重新登入，' +
+    "你的清單資料都在雲端，不會不見。</p>";
+  document.getElementById("btnRetryLoad").onclick = () => render();
+  document.getElementById("btnHardReset").onclick = () => hardReset();
+}
+
+// 清掉 supabase 存在瀏覽器裡的 session，用來解開卡住的登入狀態
+export function hardReset() {
+  try {
+    Object.keys(localStorage)
+      .filter((k) => k.startsWith("sb-") || k.startsWith("travelcheck_"))
+      .forEach((k) => localStorage.removeItem(k));
+  } catch (e) {}
+  location.hash = "#/login";
+  location.reload();
+}
+
 /* ---------------------------- 總覽畫面 ----------------------------------- */
 
 export async function render() {
@@ -48,14 +73,25 @@ export async function render() {
   grid.innerHTML = '<p class="msg">載入中⋯⋯</p>';
   $("tripEmpty").hidden = true;
 
-  const [trips, templates, items, links, states, customs] = await Promise.all([
-    api.fetchTrips(),
-    api.fetchTemplates(),
-    api.fetchTemplateItems(),
-    api.fetchTripTemplates(null),
-    api.fetchItemStates(null),
-    api.fetchCustomItems(null),
-  ]);
+  let trips, templates, items, links, states, customs;
+  try {
+    [trips, templates, items, links, states, customs] = await api.guarded(
+      () =>
+        Promise.all([
+          api.fetchTrips(),
+          api.fetchTemplates(),
+          api.fetchTemplateItems(),
+          api.fetchTripTemplates(null),
+          api.fetchItemStates(null),
+          api.fetchCustomItems(null),
+        ]),
+      "讀取清單",
+    );
+  } catch (e) {
+    grid.innerHTML = "";
+    showLoadError(e);
+    return;
+  }
 
   const byTpl = new Map(templates.map((t) => [t.id, t]));
   const itemsByTpl = new Map();
