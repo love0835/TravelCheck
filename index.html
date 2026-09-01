@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2A3A30">
+<meta name="color-scheme" content="light">
+<title>旅行清單</title>
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+
+<!-- ======================= 應用導覽列（登入後顯示） ======================= -->
+<div class="appbar" id="appbar" hidden>
+  <div class="wrap">
+    <span class="brand">旅行清單<b id="verTag">v2</b></span>
+    <nav>
+      <a href="#/trips" data-nav="trips">我的清單</a>
+      <a href="#/templates" data-nav="templates">模板</a>
+    </nav>
+    <span class="who"><span id="whoEmail"></span><button id="btnLogout">登出</button></span>
+  </div>
+</div>
+
+<!-- ======================= 清單內頁的表頭（沿用原本設計） ======================= -->
+<header id="tripHeader" hidden>
+  <div class="wrap">
+    <div class="tripbar">
+      <a href="#/trips">← 我的清單</a>
+      <span class="tname" id="tripName"></span>
+      <button id="btnTripTmpl">模板</button>
+    </div>
+    <div class="meta">
+      <div><span>目的地</span><input id="mDest" placeholder="輸入目的地"></div>
+      <div><span>出發日</span><input id="mDate" type="date"></div>
+    </div>
+  </div>
+</header>
+
+<div class="gauge" id="gauge" hidden>
+  <div class="wrap grow">
+    <div class="bar"><i id="fill"></i></div><span id="count">0 / 0</span>
+    <span class="chips">
+      <button class="chip" data-t="all" aria-pressed="true">全部</button>
+      <button class="chip" data-t="item" aria-pressed="false">物品</button>
+      <button class="chip" data-t="todo" aria-pressed="false">待辦</button>
+    </span>
+  </div>
+  <div class="wrap tools">
+    <div class="sbox">
+      <input id="q" type="search" placeholder="搜尋項目…" autocomplete="off" enterkeyhint="search">
+      <button id="qclr" title="清除">&#10005;</button>
+    </div>
+    <button id="qgo" title="搜尋">搜尋</button>
+  </div>
+  <div class="wrap jrow">
+    <button id="jumpBtn"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg><span>跳到段落</span></button>
+  </div>
+</div>
+
+<!-- ======================= 登入 ======================= -->
+<section class="view" id="view-auth">
+  <div class="wrap">
+    <div class="authcard">
+      <h1 id="authTitle">登入</h1>
+      <p class="lead" id="authLead">用你的 Email 與密碼登入，清單會存在雲端，換手機也拿得到。</p>
+      <form id="authForm">
+        <div class="field">
+          <label for="authEmail">EMAIL</label>
+          <input id="authEmail" type="email" autocomplete="email" required placeholder="you@example.com">
+        </div>
+        <div class="field">
+          <label for="authPass">密碼</label>
+          <input id="authPass" type="password" autocomplete="current-password" required minlength="6" placeholder="至少 6 個字">
+        </div>
+        <button class="btn primary" id="authSubmit" type="submit" style="width:100%">登入</button>
+      </form>
+      <p class="msg" id="authMsg"></p>
+      <p class="authswap" id="authSwapWrap">還沒有帳號？<button type="button" id="authSwap">建立一個</button></p>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= 我的旅行清單 ======================= -->
+<section class="view" id="view-trips">
+  <div class="wrap">
+    <div class="pagehead">
+      <h1>我的旅行清單</h1>
+      <p>每一次旅行開一份清單，各自記錄自己的進度，互不影響。</p>
+    </div>
+    <div class="btnrow">
+      <button class="btn primary" id="btnNewTrip">＋ 新增清單</button>
+      <button class="btn ghost" id="btnExportAll">匯出備份</button>
+      <button class="btn ghost" id="btnImportAll">匯入備份</button>
+    </div>
+    <p class="msg" id="tripsMsg"></p>
+    <div class="tripgrid" id="tripGrid"></div>
+    <div class="empty" id="tripEmpty" hidden>
+      還沒有任何清單。<br>按上面的「＋ 新增清單」，挑幾個模板就能開始。
+    </div>
+    <footer>清單與模板都存在你的帳號裡。想留一份離線副本，按「匯出備份」下載 JSON 檔。</footer>
+  </div>
+</section>
+
+<!-- ======================= 新增清單 ======================= -->
+<section class="view" id="view-new">
+  <div class="wrap">
+    <div class="pagehead">
+      <h1 id="newTitle">新增清單</h1>
+      <p>先取個名字（例如「成都旅遊」），再挑這趟旅行要用的模板。之後隨時可以增減。</p>
+    </div>
+    <div id="newMetaBox">
+      <div class="field">
+        <label for="newName">清單名稱</label>
+        <input id="newName" placeholder="例如：成都旅遊" maxlength="40">
+      </div>
+      <div class="tplrow2">
+        <div class="field">
+          <label for="newDest">目的地（可留空）</label>
+          <input id="newDest" placeholder="例如：成都" maxlength="40">
+        </div>
+        <div class="field">
+          <label for="newDate">出發日（可留空）</label>
+          <input id="newDate" type="date">
+        </div>
+      </div>
+    </div>
+    <div id="newPick"></div>
+    <p class="msg" id="newMsg"></p>
+    <div class="btnrow">
+      <button class="btn primary" id="btnCreateTrip">建立清單</button>
+      <button class="btn ghost" id="btnCancelNew">取消</button>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= 清單內頁（沿用原本畫面） ======================= -->
+<main class="wrap view" id="view-trip">
+  <div class="ctlblock">
+    <div class="ctlrow"><em>模式</em><div class="btns"><button class="big" data-g="mode" data-v="full" aria-pressed="true">完整</button>
+      <button class="big" data-g="mode" data-v="min" aria-pressed="false">極簡</button></div></div>
+    <div class="ctlrow"><em>寵物</em><div class="btns"><button class="big add" data-add="pet" aria-pressed="false"><span class="pm">＋</span>寵物項目</button></div></div>
+    <div class="ctlrow"><em>性別</em><div class="btns"><button class="big" data-g="sex" data-v="full" aria-pressed="true">完整</button>
+      <button class="big" data-g="sex" data-v="male" data-ic="man" aria-pressed="false">男生</button>
+      <button class="big" data-g="sex" data-v="female" data-ic="woman" aria-pressed="false">女生</button></div></div>
+    <div class="ctlrow"><em>檢視</em><div class="btns"><button class="big" id="fAll" aria-pressed="true">全部</button>
+      <button class="big" id="fTodo" data-ic="todo" aria-pressed="false">只看未帶</button>
+      <button class="big" id="fHide" data-ic="eyeoff" aria-pressed="false">收起不需要</button></div></div>
+  </div>
+
+  <button id="warnBtn"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M12 3.4l9 15.6H3l9-15.6z"/><path d="M12 9.6v4.2"/><circle cx="12" cy="16.6" r=".9" fill="currentColor" stroke="none"/></svg><span>重要提醒</span></button>
+
+  <div id="list"></div>
+
+  <div id="memoBox">
+    <h2>備註</h2>
+    <textarea id="memo" placeholder="航班編號、飯店名稱與地址、保單號碼、緊急聯絡人、還沒買的東西、想吃的餐廳⋯⋯"></textarea>
+  </div>
+
+  <div id="dangerBox">
+    <div class="dhead"><span class="dicon">!</span><h2>危險操作</h2></div>
+    <p id="resetMsg">會清空這份清單的所有勾選、不需要的標記、自己新增的項目與備註，且無法復原。其他清單與模板不受影響。</p>
+    <button id="btnReset">全部還原</button>
+    <div class="btnrow">
+      <button class="btn warn" id="btnDeleteTrip">刪除這份清單</button>
+    </div>
+  </div>
+
+  <footer id="tripFoot">勾選會即時存到你的帳號，換裝置登入就看得到。</footer>
+</main>
+
+<!-- ======================= 模板編輯 ======================= -->
+<section class="view" id="view-templates">
+  <div class="wrap">
+    <div class="pagehead">
+      <h1>模板</h1>
+      <p>公用模板是唯讀的，按「複製成我的模板」就能改。改動自己的模板後，所有使用它的清單都會跟著更新。</p>
+    </div>
+    <div class="tpllayout">
+      <aside class="tplside" id="tplSide"></aside>
+      <div class="tplmain" id="tplMain"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= 彈窗與浮動按鈕 ======================= -->
+<div id="warnOv" hidden>
+  <div id="warnBox" role="dialog" aria-modal="true" aria-labelledby="warnTitle">
+    <div class="hhead alert"><h2 id="warnTitle">重要提醒</h2><button id="warnX" title="關閉">&#10005;</button></div>
+    <div class="wbody">
+    <div class="notices">
+      <h2>緊急電話</h2>
+      <p class="big">中國大陸<br><b>110</b> 報警　<b>120</b> 急救<br><b>119</b> 火警　<b>122</b> 交通事故</p>
+      <p>海基會 24 小時 <b>+886-2-2533-9995</b></p>
+      <p>隨身帶張小卡：血型、過敏、慢性病、緊急聯絡人。</p>
+    </div>
+    <div class="notices">
+      <h2>上飛機前</h2>
+      <p>行動電源只能隨身，不可託運。</p>
+      <p>液體每瓶 100ml 以內，裝進一個透明夾鏈袋。</p>
+      <p>雨傘一律託運。</p>
+      <p>備用眼鏡和所有藥品放隨身。</p>
+      <p>行李秤好後拍一張照，記住公斤數，回程才好抓。</p>
+    </div>
+    <div class="notices">
+      <h2>最要小心的事</h2>
+      <p><b>不要幫任何人拿東西或託運行李</b>，被查到責任全在你。</p>
+      <p>行李不離身，別請陌生人代看。</p>
+      <p>證件、現金、信用卡分開放，不要全部塞同一個包。</p>
+      <p>只搭正規排班車，上車前先確認車牌。</p>
+    </div>
+    <div class="notices">
+      <h2>不能帶回台灣</h2>
+      <p>肉類與任何含肉製品、生鮮蔬果、生蛋、種子。</p>
+      <p>大罐酒精留在當地，小罐 100ml 以內可隨身。</p>
+      <p>不確定就主動申報，申報不罰。</p>
+    </div>
+    <div class="notices">
+      <h2>出狀況時</h2>
+      <p>班機延誤：當場向櫃檯索取延誤證明。</p>
+      <p>行李沒到：離開機場前填 PIR。</p>
+      <p>兩張紙事後都補不到，沒有就不能理賠。</p>
+      <p class="petnote">確定延誤就立刻通知寵物保姆加班。</p>
+    </div>
+    </div>
+    <div class="hfoot"><span>之後按右下角的<b> ! </b>再看</span><button id="warnOk">知道了</button></div>
+  </div>
+</div>
+
+<div id="jumpOv" hidden>
+  <div id="jumpBox" role="dialog" aria-modal="true" aria-labelledby="jumpTitle">
+    <div class="hhead"><h2 id="jumpTitle">跳到段落</h2><button id="jumpX" title="關閉">&#10005;</button></div>
+    <div class="jlist" id="jlist"></div>
+  </div>
+</div>
+
+<div id="tmplOv" hidden>
+  <div id="tmplBox" role="dialog" aria-modal="true" aria-labelledby="tmplTitle">
+    <div class="hhead"><h2 id="tmplTitle">這份清單使用的模板</h2><button id="tmplX" title="關閉">&#10005;</button></div>
+    <div class="hbody" id="tmplPick"></div>
+    <div class="hfoot"><span id="tmplMsg">取消勾選只是把段落移出清單，已勾的紀錄會留著。</span><button id="tmplOk">套用</button></div>
+  </div>
+</div>
+
+<div id="helpOv" hidden>
+  <div id="helpBox" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+    <div class="hhead">
+      <h2 id="helpTitle">使用說明</h2>
+      <button id="helpX" title="關閉">&#10005;</button>
+    </div>
+    <div class="hbody">
+      <h3>這是什麼</h3>
+      <p>可以重複使用的旅行清單。每次出國開一份新清單，挑幾個模板，照著勾一遍。基本是<b>城市行程的成人自助旅行</b>。</p>
+      <p class="sub">未含嬰幼兒與長者的專屬需求（推車、奶粉、輪椅、慢性病照護），需要時用「＋ 新增項目」補上。公用模板含 3C 認證、掃碼支付、防火牆、220V、台胞證等中國特有事項。</p>
+
+      <h3>清單與模板的關係</h3>
+      <p><b>模板</b>是內容（隨身、託運｜盥洗、場景｜滑雪⋯⋯）。<b>清單</b>是一次旅行（成都旅遊、遼寧旅遊），它只是「引用」你挑的那幾個模板。</p>
+      <p class="sub">所以你在模板頁改了內容，所有引用它的清單都會跟著變。各份清單的勾選狀態是分開的，不會互相影響。</p>
+
+      <h3>自訂模板</h3>
+      <p>公用模板是唯讀的。想改就在模板頁按<b>複製成我的模板</b>，得到一份自己的副本，之後名稱、項目、說明都能改。</p>
+      <p class="sub">也可以按「＋ 新建空白模板」從零開始。</p>
+
+      <h3>三種狀態</h3>
+      <p>點<b>名稱</b>＝已攜帶。點右邊的<b>閉眼圖示</b>＝不需要，會變灰並從進度扣掉，再點一次復原。</p>
+      <p>段落標題右邊的<b>整組不需要</b>＝整段一次收起。</p>
+
+      <h3>篩選</h3>
+      <p><b>寵物</b>：按 ＋寵物項目 才會出現餵食、保姆那些項目。</p>
+      <p><b>模式</b>：極簡會把飯店有提供、或當地買得到的東西標成不需要。</p>
+      <p><b>性別</b>／<b>分類</b>／<b>只看未帶</b>／<b>收起不需要</b>：都可以互相組合。</p>
+
+      <h3>找東西與新增</h3>
+      <p>最上面有<b>搜尋</b>和<b>跳到段落</b>，右下角圓鈕可回頂端或跳到最底。</p>
+      <p>每一段最下面的<b>＋ 新增項目</b>可以臨時加東西，只會加在這份清單裡，不會動到模板。</p>
+
+      <h3>資料存在哪</h3>
+      <p>存在你的帳號裡，換手機、換瀏覽器登入都拿得到。</p>
+      <p class="sub">想留離線副本，到「我的清單」按<b>匯出備份</b>下載 JSON 檔。</p>
+    </div>
+    <div class="hfoot">
+      <span>之後可按右下角的<b> ? </b>隨時打開</span>
+      <button id="helpOk">開始使用</button>
+    </div>
+  </div>
+</div>
+
+<div id="navBtns" hidden>
+  <button id="toTop" title="回到最上面">&#8593;</button>
+  <button id="toBot" title="跳到最下面">&#8595;</button>
+  <button id="warnFab" class="on" title="重要提醒">!</button>
+  <button id="helpFab" class="on" title="使用說明">?</button>
+</div>
+
+<div id="syncNote" hidden></div>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

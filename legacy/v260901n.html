@@ -1,0 +1,1472 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2A3A30">
+<meta name="color-scheme" content="light">
+<title>超詳細旅行清單 v260901n</title>
+<style>
+  :root{
+    --paper:#ECEFE8; --ink:#23302A; --sea:#4A6250; --sea-soft:#7A9880;
+    --signal:#A9C0A4; --alert:#A5584A; --muted:#7C8880; --rule:#CBD3C8;--skip:#8A6E52; --done:#5B6B5E;--doneBg:#DFE7DB;--doneMark:#5E7A63;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{background:var(--paper);color:var(--ink);
+    font-family:"Noto Sans TC","PingFang TC","Heiti TC","Microsoft JhengHei",system-ui,sans-serif;
+    font-size:14.5px;line-height:1.68;
+    text-wrap:pretty;word-break:break-word;line-break:strict;
+    padding-bottom:calc(72px + env(safe-area-inset-bottom))}
+  .wrap{max-width:760px;margin:0 auto;padding:0 18px}
+
+  header{background:linear-gradient(135deg,#2A3A30 0%,#4A6250 52%,#728E76 100%);
+    color:#EDF2EA;padding:18px 0 0;border-bottom:3px solid #1F2B24}
+  .route{display:flex;align-items:center;gap:9px;font-weight:700;letter-spacing:.02em;flex-wrap:wrap}
+  .route .code{font-size:23px;line-height:1.15}
+  .route .arrow{font-size:20px;opacity:.6;transform:translateY(-3px)}
+  .route .tag{font-size:11px;margin-left:auto;font-weight:400;
+    border:1px solid rgba(255,255,255,.45);padding:2px 8px;border-radius:2px;letter-spacing:.04em}
+  .meta input{width:100%;font:inherit;font-size:15.5px;font-weight:700;color:#EDF2EA;
+    font-variant-numeric:tabular-nums;
+    background:transparent;border:0;border-bottom:1px dashed rgba(255,255,255,.4);
+    padding:0 0 3px;line-height:1.3}
+  .meta input:focus{outline:0;border-bottom-color:#fff}
+  .meta input::placeholder{font-weight:400;color:rgba(237,242,234,.42);font-weight:400}
+  .meta input[type=date]{color-scheme:dark}
+  .author{margin-left:auto;display:flex;align-items:center;gap:6px;
+    font-size:10.5px;opacity:.7;font-weight:400;letter-spacing:.04em;white-space:nowrap}
+  .ver{font-size:10px;font-weight:700;letter-spacing:.06em;
+    background:rgba(255,255,255,.16);border-radius:9px;padding:2px 7px}
+  .meta{display:flex;margin-top:12px;border-top:1px solid rgba(255,255,255,.22)}
+  .meta div{flex:1.15 1 0;min-width:0;padding:8px 14px 11px;
+    border-right:1px solid rgba(255,255,255,.16)}
+  .meta div:nth-child(2){flex:1 1 0}
+  .meta div:first-child{padding-left:0}
+  .meta div:last-child{border-right:0;padding-right:0}
+  .meta span{display:block;font-size:10.5px;opacity:.62;letter-spacing:.12em;margin-bottom:5px}
+
+  .gauge{background:linear-gradient(90deg,#1F2B24 0%,#33443A 100%);padding:8px 0 9px;position:sticky;top:0;z-index:20}
+  .gauge .wrap.grow{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+  .gauge .tools{display:flex;gap:7px;margin-top:6px;align-items:center}
+  .gauge .jrow{margin-top:6px}
+  .sbox{position:relative;flex:1 1 auto;min-width:0}
+  #q{width:100%;font:inherit;font-size:13px;padding:6px 28px 6px 10px;border-radius:2px;
+    border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.10);color:#EDF2EA}
+  #q::placeholder{color:rgba(237,242,234,.55)}
+  #q:focus{outline:0;border-color:#B8CDB2;background:rgba(255,255,255,.16)}
+  #q::-webkit-search-cancel-button{display:none}
+  #qclr{position:absolute;right:4px;top:50%;transform:translateY(-50%);
+    border:0;background:transparent;color:rgba(237,242,234,.6);font-size:12px;padding:4px 6px;
+    cursor:pointer;display:none}
+  #qclr.on{display:block}
+  #qgo{flex:0 0 auto;font-size:12.5px;padding:6px 12px;border-radius:2px;
+    border:1px solid #B8CDB2;background:rgba(255,255,255,.14);color:#EDF2EA;font-weight:700}
+  #qgo:active{background:#B8CDB2;color:#23302A}
+  #jumpBtn{width:100%;display:flex;align-items:center;justify-content:center;gap:7px;
+    font-size:12.5px;font-weight:700;padding:7px 10px;border-radius:3px;
+    border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.10);color:#EDF2EA}
+  #jumpBtn:active{background:#B8CDB2;color:#23302A}
+  #jumpOv{position:fixed;inset:0;z-index:60;background:rgba(31,43,36,.55);
+    display:flex;align-items:flex-end;justify-content:center}
+  #jumpOv[hidden]{display:none}
+  #jumpBox{background:#F2F5EE;width:100%;max-width:640px;max-height:82vh;
+    display:flex;flex-direction:column;border-radius:10px 10px 0 0;
+    box-shadow:0 -4px 24px rgba(0,0,0,.3)}
+  .jlist{overflow-y:auto;padding:4px 0 10px}
+  .jitem{display:flex;align-items:center;gap:10px;width:100%;text-align:left;
+    border:0;border-bottom:1px solid #DCE3D6;background:transparent;
+    padding:11px 16px;font-size:14px;color:var(--ink);cursor:pointer}
+  .jitem:active{background:#E4EBDE}
+  .jitem .jk{font-size:11px;font-weight:700;color:#1E2E20;background:#A9C79E;
+    padding:2px 6px;border-radius:2px;flex:0 0 auto}
+  .jitem .jk.todo{background:#E0C892;color:#3A2C13}
+  .jitem .jn{margin-left:auto;font-size:12px;color:var(--muted)}
+  .jitem.pet{color:var(--skip)}
+  .jitem.hot{color:#8E6229}
+  @media (min-width:700px){#jumpOv{align-items:center}#jumpBox{border-radius:10px}}
+  #helpOv{position:fixed;inset:0;z-index:60;background:rgba(31,43,36,.55);
+    display:flex;align-items:flex-end;justify-content:center;padding:0}
+  #helpOv[hidden]{display:none}
+  #helpBox{background:#F2F5EE;width:100%;max-width:640px;max-height:88vh;
+    display:flex;flex-direction:column;border-radius:10px 10px 0 0;
+    box-shadow:0 -4px 24px rgba(0,0,0,.3)}
+  .hhead{display:flex;align-items:center;gap:10px;padding:14px 16px 11px;
+    background:linear-gradient(135deg,#33453A,#728E76);color:#EDF2EA;border-radius:10px 10px 0 0}
+  .hhead h2{margin:0;font-size:16px;font-weight:700;flex:1}
+  #helpX,#warnX,#jumpX{border:0;background:rgba(255,255,255,.22);color:#fff;
+    font-size:13px;width:32px;height:32px;border-radius:50%;cursor:pointer;padding:0;
+    display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+  #helpX:active,#warnX:active,#jumpX:active{background:rgba(255,255,255,.36)}
+  .hbody{overflow-y:auto;padding:4px 16px 10px;-webkit-overflow-scrolling:touch}
+  .hbody h3{font-size:14px;margin:18px 0 7px;color:#3E5344;font-weight:700;
+    border-bottom:1px solid #C3D0BD;padding-bottom:4px;
+    display:flex;align-items:center;gap:6px}
+  .hbody h3::before{content:"";width:7px;height:7px;border-radius:2px;
+    background:var(--sea-soft);flex:0 0 auto;transform:rotate(45deg)}
+  .hbody p{margin:0 0 8px;font-size:13px;line-height:1.75}
+  .hbody p.warnline{color:var(--alert);font-weight:700}
+  .hbody p.sub{margin:-5px 0 9px;padding-left:13px;border-left:2px solid #BFCDBB;
+    color:var(--muted);font-size:12.5px}
+  .hbody b{color:var(--ink)}
+  .hfoot{display:flex;align-items:center;gap:10px;padding:11px 16px 14px;
+    background:#E8EDE2;border-top:1px solid #C3D0BD;font-size:12px;color:var(--muted)}
+  .hfoot span{flex:1}
+  #helpOk{background:var(--sea);color:#fff;border-color:var(--sea);font-size:13.5px;padding:8px 16px}
+  #helpFab{background:#8A9A8C;font-size:19px;font-weight:700}
+  #warnFab{background:var(--alert);font-size:20px;font-weight:700}
+  #warnBtn{width:100%;display:flex;align-items:center;justify-content:center;gap:8px;
+    margin:13px 0 2px;font-size:13px;font-weight:700;padding:10px;border-radius:4px;
+    border:1.5px solid var(--alert);background:#F9F3F1;color:var(--alert)}
+  #warnBtn:active{background:var(--alert);color:#fff}
+  #warnOv{position:fixed;inset:0;z-index:60;background:rgba(31,43,36,.55);
+    display:flex;align-items:flex-end;justify-content:center}
+  #warnOv[hidden]{display:none}
+  #warnBox{background:#F9F3F1;width:100%;max-width:640px;max-height:88vh;
+    display:flex;flex-direction:column;border-radius:10px 10px 0 0;
+    box-shadow:0 -4px 24px rgba(0,0,0,.3)}
+  .hhead.alert{background:linear-gradient(135deg,#7A4438,#A5584A)}
+  .wbody{overflow-y:auto;padding:10px 16px 12px}
+  .wbody .notices{margin:0 0 13px;border-left-width:3px}
+  .wbody .notices p.big{font-size:15px;line-height:1.75}
+  .wbody .notices p.big b{font-size:17px;letter-spacing:.02em}
+  .wbody .notices h2{cursor:default;padding-bottom:5px}
+  #warnOk{background:var(--alert);color:#fff;border-color:var(--alert);font-size:13.5px;padding:8px 16px}
+  @media (min-width:700px){#warnOv{align-items:center}#warnBox{border-radius:10px}}
+  @media (min-width:700px){#helpOv{align-items:center}#helpBox{border-radius:10px}
+    .hhead{border-radius:10px 10px 0 0}}
+  #navBtns{position:fixed;right:14px;bottom:calc(18px + env(safe-area-inset-bottom));z-index:40;display:flex;flex-direction:column;gap:8px}
+  #navBtns button{width:44px;height:44px;border-radius:50%;border:0;background:var(--sea);
+    color:#fff;font-size:20px;line-height:1;box-shadow:0 2px 10px rgba(35,48,42,.32);
+    cursor:pointer;display:none;padding:0}
+  #navBtns button.on{display:block}
+  #navBtns button:active{background:#3A4E3F}
+  #toBot{background:#728E76}
+  .noresult{padding:18px 2px;color:var(--muted);font-size:13.5px}
+  .bar{flex:1 1 60px;min-width:48px;height:8px;background:rgba(255,255,255,.18);overflow:hidden;border-radius:1px}
+  .bar i{display:block;height:100%;width:0%;transition:width .28s ease;
+    background:linear-gradient(90deg,#7A9880 0%,#BCD1B6 100%)}
+  .chips{display:flex;gap:3px;flex:0 0 auto;padding:3px;border-radius:17px;
+    background:rgba(0,0,0,.26);border:1px solid rgba(255,255,255,.15)}
+  .chip{display:flex;align-items:center;gap:5px;font-size:12.5px;font-weight:700;
+    padding:5px 12px;border:0;border-radius:14px;background:transparent;
+    letter-spacing:.05em;line-height:1.35;transition:background .16s ease,color .16s ease}
+  .chip::before{content:"";width:7px;height:7px;border-radius:50%;flex:0 0 auto;
+    background:currentColor;opacity:.85}
+  .chip[data-t="all"]{color:#C6D4C1}
+  .chip[data-t="item"]{color:#A6CB98}
+  .chip[data-t="todo"]{color:#E2C892}
+  .chip[aria-pressed="true"]{box-shadow:0 1px 5px rgba(0,0,0,.3)}
+  .chip[aria-pressed="true"]::before{background:rgba(0,0,0,.4);opacity:1}
+  .chip[data-t="all"][aria-pressed="true"]{background:#C6D4C1;color:#22302A}
+  .chip[data-t="item"][aria-pressed="true"]{background:#A6CB98;color:#1B2C1D}
+  .chip[data-t="todo"][aria-pressed="true"]{background:#E2C892;color:#3A2C13}
+  .gauge span#count{color:#EAF1E7;font-size:12.5px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+
+  .ctlblock{padding:14px 0 0}
+  .ctlrow{display:flex;gap:8px;align-items:flex-start;margin-bottom:7px}
+  .btns{display:flex;flex-wrap:wrap;gap:6px;flex:1 1 auto;min-width:0}
+  .terrrow .btns{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
+  .terrrow .btns button{justify-content:center;padding:6px 2px;gap:3px}
+  button.add .pm{font-size:13px;font-weight:700;line-height:1;opacity:.75}
+  button.add[aria-pressed="true"] .pm{opacity:1}
+  button.add{border-style:dashed;color:var(--sea)}
+  button.add[aria-pressed="true"]{border-style:solid}
+  @media (max-width:360px){.terrrow .btns{grid-template-columns:repeat(2,1fr)}}
+  .ctlrow > em{font-style:normal;font-size:11px;color:var(--muted);letter-spacing:.08em;
+    min-width:30px;font-weight:700;padding-top:7px;flex:0 0 auto}
+  button.big{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:700;
+    padding:5px 12px;border-radius:16px;border:1.5px solid var(--rule);background:#fff;
+    line-height:1.5}
+  button.big[aria-pressed="true"]{background:var(--sea);border-color:var(--sea);color:#F1F5EE}
+  button.big .bic{opacity:.85;flex:0 0 auto}
+  button.big{white-space:nowrap}
+  .ctlblock{padding:13px 0 10px;border-bottom:1px solid var(--rule);margin-bottom:2px}
+
+  button{font:inherit;font-size:13px;padding:6px 12px;background:transparent;color:var(--ink);
+    border:1px solid var(--rule);border-radius:2px;cursor:pointer}
+  button[aria-pressed="true"]{background:var(--sea);color:#F3EFFA;border-color:var(--sea)}
+  button:focus-visible{outline:2px solid var(--sea-soft);outline-offset:2px}
+
+  button.danger{background:var(--alert);color:#fff;border-color:var(--alert)}
+  #resetMsg{display:none;margin:0 0 8px;font-size:12.5px;color:var(--alert);
+    border-left:2px solid var(--alert);padding:2px 0 2px 11px}
+
+  .notices{margin:14px 0 4px;border-left:3px solid var(--alert);padding:2px 0 2px 14px}
+  .notices h2{font-size:13.5px;margin:0;color:var(--alert);font-weight:700;
+    display:flex;align-items:center;gap:8px;cursor:pointer;padding:2px 0 6px}
+  .notices p{margin:0 0 8px;font-size:13px;color:#7E4136;line-height:1.7}
+  .notices p b{color:var(--alert)}
+  .notices p.petnote{color:var(--skip);border-top:1px dotted #C9BCA6;padding-top:6px;margin-top:8px}
+
+  section{margin-top:30px}
+  section h2{font-size:15px;margin:0 0 2px;font-weight:700;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .sic{flex:0 0 auto;opacity:.85;align-self:center}
+  .secskip svg{display:block}
+  .sklab{font-size:12px}
+  .secskip{display:flex;align-items:center;gap:5px;margin-left:10px;border:1.5px solid var(--skip);background:transparent;
+    color:var(--skip);font-size:13px;font-weight:700;line-height:1;
+    padding:4px 9px;border-radius:2px;cursor:pointer;white-space:nowrap}
+  .secskip:hover{background:var(--skip);color:#fff}
+  .secskip:focus-visible{outline:2px solid var(--skip);outline-offset:2px}
+  section.pet{border-left:3px solid var(--skip);padding-left:13px;margin-left:-16px}
+  section.pet h2 > span:first-child{color:var(--skip)}
+  section.pet .hint{color:#8A6B4E}
+  section.allskip h2 > span:first-child{color:#B3B9AE}
+  section.allskip .secskip{background:var(--skip);color:#fff}
+  section.allskip .hint{display:none}
+  section h2 .n{font-size:12px;color:var(--muted);font-weight:400;
+    font-variant-numeric:tabular-nums;margin-left:auto}
+  section .hint{font-size:12px;color:var(--muted);margin:2px 0 8px;line-height:1.65}
+  section.hot{border-left:4px solid #B07A3C;padding-left:12px;margin-left:-16px;
+    background:linear-gradient(90deg,rgba(176,122,60,.09),transparent 60%)}
+  section.hot h2 > span:first-child{color:#8E6229}
+  section.hot .hint{color:#7E6238}
+  section.hot h2 .n{color:#8E6229}
+  ul{list-style:none;margin:0;padding:0;border-top:1px solid var(--rule)}
+  li{border-bottom:1px solid var(--rule);display:flex;align-items:flex-start;gap:6px}
+  label{display:flex;gap:11px;align-items:flex-start;padding:10px 2px 11px;cursor:pointer;flex:1;min-width:0}
+  .box{flex:0 0 auto;width:16px;height:16px;margin:3px 0 0;border:1.5px solid var(--sea);
+    background:transparent;border-radius:1px;position:relative}
+  .txt{flex:1;min-width:0}
+  .note{display:block;font-size:12px;color:var(--muted);margin-top:3px;line-height:1.6}
+  .imp{color:var(--alert);font-weight:700}
+  li[data-s="1"] .imp,li[data-s="2"] .imp{color:inherit;font-weight:400}
+  .skipbtn{flex:0 0 auto;align-self:center;border:0;background:transparent;color:#AFBBB0;
+    font-size:13px;line-height:1;padding:8px 6px;cursor:pointer;display:flex;align-items:center}
+  .skipbtn svg{display:block}
+  .skipbtn:hover{color:var(--alert)}
+
+  li[data-s="1"]{background:var(--doneBg)}
+  li[data-s="1"] .box{background:var(--doneMark);border-color:var(--doneMark)}
+  li[data-s="1"] .box::after{content:"";position:absolute;left:5px;top:1px;width:4px;height:9px;
+    border:solid #fff;border-width:0 2px 2px 0;transform:rotate(42deg)}
+  li[data-s="1"] .txt{color:var(--done)}
+  li[data-s="1"] .note{color:#8B9A8D}
+
+  li[data-s="2"] .box{border-color:#C2CBBF;border-style:dashed;background:transparent}
+  li[data-s="2"] .txt{color:#AFB8AF}
+  li[data-s="2"] .note{color:#BEC6BC}
+  li[data-s="2"] .skipbtn{color:var(--sea);font-size:12px}
+  li[data-s="2"] label{cursor:default}
+
+  li.hide{display:none}
+  li.addrow{border-bottom:1px solid var(--rule);padding:0}
+  .addbtn{width:100%;text-align:left;border:0;background:transparent;color:var(--sea);
+    font-size:13px;padding:9px 2px 9px 28px;cursor:pointer;font-weight:700}
+  .addbtn:hover{background:#E6EDE2}
+  .cname{width:100%;font:inherit;font-size:14px;color:var(--ink);
+    border:0;border-bottom:1px dashed var(--sea-soft);background:transparent;padding:1px 0}
+  .cname:focus{outline:0;border-bottom-color:var(--sea)}
+  .cname::placeholder{color:#A9B4A9}
+  .cdel{color:#BCA894!important;font-size:15px}
+  .cdel:hover{color:var(--alert)!important}
+  .fill{width:100%;font:inherit;font-size:14px;color:var(--ink);
+    border:0;border-bottom:1px dashed var(--rule);background:transparent;padding:1px 0}
+  .fill:focus{outline:0;border-bottom-color:var(--sea)}
+  .fill::placeholder{color:#A9B4A9}
+  #slotBox{margin-top:32px;border:1px solid var(--rule);border-radius:2px;padding:13px 14px;background:#F7FAF4}
+  #slotBox h2{font-size:15px;margin:0 0 5px;font-weight:700}
+  #slotBox .bhint{margin:0 0 11px}
+  .slot{display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+    border-left:5px solid var(--c);background:#fff;border:1px solid var(--rule);
+    border-left-width:5px;border-radius:2px;padding:8px 10px;margin-bottom:8px}
+  .slot .dot{width:10px;height:10px;border-radius:50%;background:var(--c);flex:0 0 auto}
+  .slot .sname{flex:1 1 120px;min-width:96px;font:inherit;font-size:14px;font-weight:700;
+    color:var(--c);background:transparent;border:0;border-bottom:1px dashed var(--c);padding:2px 0}
+  .slot .sname:focus{outline:0;border-bottom-style:solid}
+  .slot .fixed{flex:1 1 120px;font-size:14px;font-weight:700;color:var(--c)}
+  .slot .stime{flex:1 1 100%;font-size:11.5px;color:var(--muted);order:9}
+  .slot button{font-size:12.5px;padding:5px 11px;border:1px solid var(--c);color:var(--c);background:transparent}
+  .slot button.fill{background:var(--c);color:#fff}
+  .slot button.warn{background:var(--alert);border-color:var(--alert);color:#fff}
+  .slot button[disabled]{opacity:.35;cursor:default}
+  .lockbadge{font-size:10.5px;color:#fff;background:var(--c);padding:2px 6px;border-radius:2px;letter-spacing:.05em}
+  #slotMsg{margin:6px 0 0;font-size:12.5px;color:var(--sea);min-height:1em}
+  #dangerBox{margin-top:22px;border:1px solid #DCC0B8;border-left:5px solid var(--alert);
+    border-radius:2px;padding:12px 14px;background:#F9F3F1}
+  .dhead{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+  .dhead h2{font-size:15px;margin:0;font-weight:700;color:var(--alert)}
+  .dicon{width:19px;height:19px;border-radius:50%;background:var(--alert);color:#fff;
+    font-size:13px;font-weight:700;line-height:19px;text-align:center;flex:0 0 auto}
+  #dangerBox #resetMsg{display:block;margin:0 0 10px;font-size:12.5px;color:#7A4438;
+    border:0;padding:0;line-height:1.55}
+  #btnReset{border:1.5px solid var(--alert);color:var(--alert);background:#fff;
+    font-weight:700;padding:8px 18px}
+  #btnReset.danger{background:var(--alert);color:#fff}
+  #backupBox{margin-top:22px;border:1px solid var(--rule);border-radius:2px;padding:13px 14px;background:#F6F9F2}
+  #backupBox h2{font-size:15px;margin:0 0 5px;font-weight:700}
+  .bhint{margin:0 0 9px;font-size:12.5px;color:var(--muted);line-height:1.55}
+  #bak{width:100%;height:76px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11.5px;
+    line-height:1.4;padding:8px 9px;border:1px solid var(--rule);border-radius:2px;
+    background:#fff;color:var(--ink);resize:vertical;word-break:break-all}
+  #bak:focus{outline:0;border-color:var(--sea)}
+  .brow{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}
+  #bakMsg{margin:8px 0 0;font-size:12.5px;color:var(--sea);min-height:1em}
+  #memoBox{margin-top:34px}
+  #memoBox h2{font-size:16px;margin:0 0 6px;font-weight:700}
+  #memo{width:100%;min-height:140px;font:inherit;font-size:14px;line-height:1.7;
+    padding:11px 12px;border:1px solid var(--rule);border-radius:2px;
+    background:#F6F8F3;color:var(--ink);resize:vertical}
+  #memo:focus{outline:0;border-color:var(--sea)}
+  .step{color:var(--sea);font-weight:700;font-variant-numeric:tabular-nums;margin-right:2px}
+  footer{margin-top:38px;padding-top:14px;border-top:1px solid var(--rule);font-size:12.5px;color:var(--muted)}
+
+  @media (max-width:400px){.route .code{font-size:20px}.meta div{padding-left:10px;padding-right:10px}.meta input{font-size:14.5px}}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+  @media print{
+    body{background:#fff;font-size:10.5pt;padding:0}
+    .gauge,.ctlblock,footer,.skipbtn,#navBtns,#helpOv,#jumpOv,#warnOv,#warnBtn,#dangerBox{display:none}
+    header{background:#fff;color:#000;border-bottom:2px solid #000}
+    .meta div{border-right:1px solid #999}
+    .meta span{opacity:1;color:#555}
+    section{break-inside:avoid}
+    li[data-s="2"]{display:none}
+    li[data-s="1"]{background:transparent}
+    #backupBox,#slotBox{display:none}
+    section.allskip{display:none!important}
+    #memo{min-height:120px;background:#fff;border:1px solid #000}
+    .box{border-color:#000}
+  }
+</style>
+
+<header>
+  <div class="wrap">
+    <div class="route">
+      <span class="code">超詳細旅行清單</span>
+      <span class="tag">中國版</span>
+      <span class="author">AettyChang<b class="ver">v260901n</b></span>
+    </div>
+    <div class="meta">
+      <div><span>目的地</span><input id="mDest" placeholder="輸入目的地"></div>
+      <div><span>出發日</span><input id="mDate" type="date"></div>
+    </div>
+  </div>
+</header>
+
+<div class="gauge" id="gauge">
+  <div class="wrap grow">
+    <div class="bar"><i id="fill"></i></div><span id="count">0 / 0</span>
+    <span class="chips">
+      <button class="chip" data-t="all" aria-pressed="true">全部</button>
+      <button class="chip" data-t="item" aria-pressed="false">物品</button>
+      <button class="chip" data-t="todo" aria-pressed="false">待辦</button>
+    </span>
+  </div>
+  <div class="wrap tools">
+    <div class="sbox">
+      <input id="q" type="search" placeholder="搜尋項目…" autocomplete="off" enterkeyhint="search">
+      <button id="qclr" title="清除">&#10005;</button>
+    </div>
+    <button id="qgo" title="搜尋">搜尋</button>
+  </div>
+  <div class="wrap jrow">
+    <button id="jumpBtn"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg><span>跳到段落</span></button>
+  </div>
+</div>
+
+<div id="warnOv" hidden>
+  <div id="warnBox" role="dialog" aria-modal="true" aria-labelledby="warnTitle">
+    <div class="hhead alert"><h2 id="warnTitle">重要提醒</h2><button id="warnX" title="關閉">&#10005;</button></div>
+    <div class="wbody">
+    <div class="notices">
+      <h2>緊急電話</h2>
+      <p class="big">中國大陸<br><b>110</b> 報警　<b>120</b> 急救<br><b>119</b> 火警　<b>122</b> 交通事故</p>
+      <p>海基會 24 小時 <b>+886-2-2533-9995</b></p>
+      <p>隨身帶張小卡：血型、過敏、慢性病、緊急聯絡人。</p>
+    </div>
+    <div class="notices">
+      <h2>上飛機前</h2>
+      <p>行動電源只能隨身，不可託運。</p>
+      <p>液體每瓶 100ml 以內，裝進一個透明夾鏈袋。</p>
+      <p>雨傘一律託運。</p>
+      <p>備用眼鏡和所有藥品放隨身。</p>
+      <p>行李秤好後拍一張照，記住公斤數，回程才好抓。</p>
+    </div>
+    <div class="notices">
+      <h2>最要小心的事</h2>
+      <p><b>不要幫任何人拿東西或託運行李</b>，被查到責任全在你。</p>
+      <p>行李不離身，別請陌生人代看。</p>
+      <p>證件、現金、信用卡分開放，不要全部塞同一個包。</p>
+      <p>只搭正規排班車，上車前先確認車牌。</p>
+    </div>
+    <div class="notices">
+      <h2>不能帶回台灣</h2>
+      <p>肉類與任何含肉製品、生鮮蔬果、生蛋、種子。</p>
+      <p>大罐酒精留在當地，小罐 100ml 以內可隨身。</p>
+      <p>不確定就主動申報，申報不罰。</p>
+    </div>
+    <div class="notices">
+      <h2>出狀況時</h2>
+      <p>班機延誤：當場向櫃檯索取延誤證明。</p>
+      <p>行李沒到：離開機場前填 PIR。</p>
+      <p>兩張紙事後都補不到，沒有就不能理賠。</p>
+      <p class="petnote">確定延誤就立刻通知寵物保姆加班。</p>
+    </div>
+    </div>
+    <div class="hfoot"><span>之後按右下角的<b> ! </b>再看</span><button id="warnOk">知道了</button></div>
+  </div>
+</div>
+
+<div id="jumpOv" hidden>
+  <div id="jumpBox" role="dialog" aria-modal="true" aria-labelledby="jumpTitle">
+    <div class="hhead"><h2 id="jumpTitle">跳到段落</h2><button id="jumpX" title="關閉">&#10005;</button></div>
+    <div class="jlist" id="jlist"></div>
+  </div>
+</div>
+
+<div id="helpOv" hidden>
+  <div id="helpBox" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+    <div class="hhead">
+      <h2 id="helpTitle">使用說明</h2>
+      <button id="helpX" title="關閉">&#10005;</button>
+    </div>
+    <div class="hbody">
+      <h3>這份清單是什麼</h3>
+      <p>可以重複使用的旅行清單，每次出國前照著跑一遍。基本是<b>城市行程的成人自助旅行</b>。</p>
+      <p class="sub">未含嬰幼兒與長者的專屬需求（推車、奶粉、輪椅、慢性病照護），需要時請自行用「＋ 新增項目」補上。中國版含 3C 認證、掃碼支付、防火牆、220V、台胞證等中國特有事項。</p>
+
+      <h3>備份碼　最重要</h3>
+      <p class="warnline">紀錄只存在這台裝置的這個瀏覽器。換手機、換瀏覽器、清除瀏覽資料，全部會消失。</p>
+      <p>清單最下面按<b>產生備份碼</b>，複製那段文字貼到記事本或用 LINE 傳給自己。</p>
+      <p class="sub">要救回時貼回框裡按「從備份碼還原」，勾選、自訂項目、四格版本會一起回來。勾完一輪就備份一次。</p>
+
+      <h3>版本存檔</h3>
+      <p>四格，可以存下不同的清單狀態隨時切換，名稱點下去就能改。</p>
+      <p class="sub"><b>原始詳細版</b>唯讀，永遠是完整未勾選的狀態，亂改之後想重來就讀它。存檔和讀取都要按兩次確認。</p>
+
+      <h3>三種狀態</h3>
+      <p>點<b>名稱</b>＝已攜帶。點右邊的<b>閉眼圖示</b>＝不需要，會變灰並從進度扣掉，再點一次復原。</p>
+      <p>段落標題右邊的<b>整組不需要</b>＝整段一次收起。</p>
+
+      <h3>場景與篩選</h3>
+      <p><b>場景</b>：基本是城市行程。按 ＋高山、＋海邊、＋滑雪、＋露營 把裝備加進來，可以同時加好幾個。</p>
+      <p><b>寵物</b>：按 ＋寵物項目 才會出現餵食、保姆、攝影機那些段落。</p>
+      <p><b>模式</b>：極簡會把飯店有提供、或當地買得到的東西標成不需要。</p>
+      <p><b>性別</b>／<b>分類</b>／<b>只看未帶</b>／<b>收起不需要</b>：都可以互相組合。</p>
+
+      <h3>找東西與新增</h3>
+      <p>最上面有<b>搜尋</b>和<b>跳到段落</b>，右下角圓鈕可回頂端或跳到最底。</p>
+      <p>每一段最下面的<b>＋ 新增項目</b>可以自己加東西，加的項目一樣能勾選、搜尋、備份。</p>
+
+      <h3>全部還原</h3>
+      <p>清空所有勾選與填寫，要按兩次。<b>版本存檔不受影響。</b></p>
+
+      <h3>版本</h3>
+      <p class="sub"><b>v260901n</b>　格式是 v＋年月日＋當天第幾版。手上不是這個版號就是舊檔。</p>
+    </div>
+    <div class="hfoot">
+      <span>之後可按右下角的<b> ? </b>隨時打開</span>
+      <button id="helpOk">開始使用</button>
+    </div>
+  </div>
+</div>
+
+<div id="navBtns">
+  <button id="toTop" title="回到最上面">&#8593;</button>
+  <button id="toBot" title="跳到最下面">&#8595;</button>
+  <button id="warnFab" class="on" title="重要提醒">!</button>
+  <button id="helpFab" class="on" title="使用說明">?</button>
+</div>
+
+<main class="wrap">
+  <div class="ctlblock">
+    <div class="ctlrow terrrow"><em>場景</em><div class="btns"><button class="big add" data-add="mtn" aria-pressed="false"><span class="pm">＋</span>高山</button>
+      <button class="big add" data-add="sea" aria-pressed="false"><span class="pm">＋</span>海邊</button>
+      <button class="big add" data-add="ski" aria-pressed="false"><span class="pm">＋</span>滑雪</button>
+      <button class="big add" data-add="camp" aria-pressed="false"><span class="pm">＋</span>露營</button></div></div>
+    <div class="ctlrow"><em>模式</em><div class="btns"><button class="big" data-g="mode" data-v="full" aria-pressed="true">完整</button>
+      <button class="big" data-g="mode" data-v="min" aria-pressed="false">極簡</button></div></div>
+    <div class="ctlrow"><em>寵物</em><div class="btns"><button class="big add" data-add="pet" aria-pressed="false"><span class="pm">＋</span>寵物項目</button></div></div>
+    <div class="ctlrow"><em>性別</em><div class="btns"><button class="big" data-g="sex" data-v="full" aria-pressed="true">完整</button>
+      <button class="big" data-g="sex" data-v="male" data-ic="man" aria-pressed="false">男生</button>
+      <button class="big" data-g="sex" data-v="female" data-ic="woman" aria-pressed="false">女生</button></div></div>
+    <div class="ctlrow"><em>檢視</em><div class="btns"><button class="big" id="fAll" aria-pressed="true">全部</button>
+      <button class="big" id="fTodo" data-ic="todo" aria-pressed="false">只看未帶</button>
+      <button class="big" id="fHide" data-ic="eyeoff" aria-pressed="false">收起不需要</button></div></div>
+</div>
+
+<button id="warnBtn"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M12 3.4l9 15.6H3l9-15.6z"/><path d="M12 9.6v4.2"/><circle cx="12" cy="16.6" r=".9" fill="currentColor" stroke="none"/></svg><span>重要提醒</span></button>
+
+  <div id="list"></div>
+
+  <div id="memoBox">
+    <h2>備註</h2>
+    <textarea id="memo" placeholder="航班編號、飯店名稱與地址、保單號碼、緊急聯絡人、還沒買的東西、想吃的餐廳⋯⋯"></textarea>
+  </div>
+  <div id="slotBox">
+    <h2>版本存檔</h2>
+    <p class="bhint">把目前的清單狀態整包存進一格，之後隨時讀取回來。存的內容包含勾選、標成不需要的項目、自填藥品、備註、目的地與日期。名稱可以直接點下去修改。</p>
+    <div class="slot" data-slot="0" style="--c:#4A6250">
+      <span class="dot"></span><span class="fixed">原始詳細版</span>
+      <span class="lockbadge">唯讀</span>
+      <span class="stime" id="slot0time">完整清單，全部未勾選</span>
+      <button class="load">讀取</button>
+    </div>
+    <div class="slot" data-slot="1" style="--c:#55707F">
+      <span class="dot"></span><input class="sname" maxlength="20" value="版本一">
+      <span class="stime">尚未存檔</span>
+      <button class="load">讀取</button><button class="put fill">存檔</button>
+    </div>
+    <div class="slot" data-slot="2" style="--c:#7A8B4F">
+      <span class="dot"></span><input class="sname" maxlength="20" value="版本二">
+      <span class="stime">尚未存檔</span>
+      <button class="load">讀取</button><button class="put fill">存檔</button>
+    </div>
+    <div class="slot" data-slot="3" style="--c:#9A6A72">
+      <span class="dot"></span><input class="sname" maxlength="20" value="版本三">
+      <span class="stime">尚未存檔</span>
+      <button class="load">讀取</button><button class="put fill">存檔</button>
+    </div>
+    <p id="slotMsg"></p>
+  </div>
+
+  <div id="backupBox">
+    <h2>備份與還原</h2>
+    <p class="bhint">按「產生備份碼」會出現一段文字，複製起來貼在記事本、或用 LINE 傳給自己存著。換手機、換瀏覽器、或紀錄不見時，把那段文字貼回下面的框，按「從備份碼還原」就能整份救回來。</p>
+    <textarea id="bak" placeholder="備份碼會出現在這裡；要還原就把備份碼貼進來"></textarea>
+    <div class="brow">
+      <button id="btnExport">產生備份碼</button>
+      <button id="btnCopy">複製</button>
+      <button id="btnImport">從備份碼還原</button>
+    </div>
+    <p id="bakMsg"></p>
+  </div>
+
+  <div id="dangerBox">
+    <div class="dhead"><span class="dicon">!</span><h2>危險操作</h2></div>
+    <p id="resetMsg">會清空勾選、不需要的標記、自己新增的項目、備註、目的地與出發日，且無法復原。版本存檔不受影響，會保留。</p>
+    <button id="btnReset">全部還原</button>
+  </div>
+
+  <footer>勾選狀態會自動保存在這台裝置。下次出國按「全部還原」就能重新開始。轉發給別人時，對方會拿到乾淨的清單。</footer>
+</main>
+
+<script>
+const DATA = [
+  {id:"pri", ic:"bolt", hot:true, kind:"todo", t:"最優先｜一週前完成", hint:"這幾件沒做，人可能出不了門，<br>或到了當地寸步難行。", items:[
+    ["台胞證效期確認","過期就上不了飛機",{red:1}],
+    ["確認旅平險／不便險的起訖時點","終期要蓋過實際落地時間",{red:1}],
+    ["逐一確認電器是否 100–240V","中國 220V，只寫 110V 會燒掉"],
+    ["支付寶綁台灣信用卡＋實名認證","落地才辦會卡簡訊驗證"]
+  ]},
+  {id:"book", ic:"calendar", kind:"todo", t:"出發前｜一週前預約", hint:"這些都要排隊或需要恢復期。<br>臨時才約，通常約不到。", items:[
+    ["髮型整理","抓一週前才自然"],
+    ["臉部護理","別排在出發前一兩天"],
+    ["美甲、修眉"],
+    ["慢性病回診拿藥","拿足天數再多幾天",{red:1}],
+    ["牙齒檢查或洗牙","旅途中牙痛最難處理"],
+    ["眼鏡或隱形眼鏡補貨","算足天數多備幾副"],
+    ["按摩、推拿","走很多路前先鬆開"],
+    ["寵物保姆預約","熱門時段要早訂",{pet:1}],
+    ["寵物洗澡預約","出發前幾天洗好",{pet:1}],
+    ["寵物健康檢查或拿藥","慢性藥備足天數",{pet:1}]
+  ]},
+  {id:"prep3", ic:"clock", kind:"todo", t:"出發前｜48 小時確認", hint:"太早看的天氣預報不準。<br>這一次才是有用的那一次。", items:[
+    ["航班時間有無異動","改點常只發簡訊"],["線上劃位","開放當下就要選，晚了坐不在一起",{red:1}],
+    ["託運額度確認"],["再看一次天氣"],
+    ["住宿訂單有效、房型沒被改"],["入住時間告知飯店","未通知可能被取消"],
+    ["確認飯店可用台胞證登記","小旅館可能不收境外旅客"],
+    ["飯店地址存簡體中文一份"]
+  ]},
+  {id:"carry", ic:"bag", t:"隨身", hint:"以下全部不託運。下方空白欄可自行填寫個人常用藥。", items:[
+    ["帽子"],["薄外套或防風外套","機艙冷，不可託運"],["長褲（磁吸褲腳）"],
+    ["好穿脫的鞋"],["襪子","機上脫鞋時穿"],["大絲巾或圍巾","可當薄毯或遮光",{f:1}],
+    ["護照"],["台胞證"],["台灣身分證"],["登機證、訂房紙本"],["錢包、信用卡"],
+    ["證件影本紙本","與正本分開放"],["手機＋手機掛繩"],
+    ["口罩","多備幾個"],["口香糖","起降耳壓"],["筆","填單用"],["小包衛生紙"],
+    ["頸枕"],["眼罩"],["耳塞"],["有線耳機","機上娛樂系統是 3.5mm"],["藍牙耳機"],
+    ["眼藥水、人工淚液","機艙很乾"],["護唇膏"],["護手霜"],
+    ["小瓶保濕乳液或噴霧"],["濕紙巾"],["酒精棉片","擦餐桌板與扶手"],
+    ["塑膠手套"],["空水壺或保溫瓶","過安檢後裝水"],["水泡貼（人工皮）","當下就要貼"],["小零食"],["束腳帶（綁腿）","減少小腿腫脹"],["機上備用鞋","機上換穿"],["食物夾鏈袋","來不及吃的先收起來"],["髮圈、大髮夾","",{f:1}],
+    ["近視眼鏡"],["備用近視眼鏡＋硬殼盒"],["太陽眼鏡＋盒"],
+    ["隱形眼鏡盒＋小瓶藥水","上機前建議取下"],
+    ["眼鏡耳掛"],["軟鼻墊"],["小螺絲起子＋備用螺絲"],["度數處方拍照存手機"],
+    ["行動電源","只能隨身，需 3C＋BSMI"],["充電線"],["轉接頭"],
+    ["平板電腦"],["平板支架"],["耳機"],["多孔 USB 快充頭","多人共用一個插座"],
+    ["筆電","安檢要單獨拿出來，放最外層"],
+    ["安眠藥","原包裝＋處方"],["常用慢性藥"],["暈機藥、暈車暈船藥"],
+    ["腸胃藥"],["止痛藥"],["感冒藥、退燒藥"],["鼻塞噴劑","感冒時耳壓會痛"],
+    ["清涼藥膏"],["OK 蹦"],["皮膚藥膏"],["酸痛藥品"],["營養保健品"],
+    ["","",{inp:1}]
+  ]},
+  {id:"lost", ic:"umbrella", t:"隨身｜防行程延誤包", items:[
+    ["一套內衣褲"],["一件換洗上衣"],["迷你牙刷牙膏"],
+    ["洗面乳或洗臉巾幾片"],["隱形眼鏡當日份"],["一天份的藥"]
+  ]},
+  {id:"t3c", ic:"plug", t:"託運｜3C 與通訊", items:[
+    ["充電線多條"],["延長線"],["相機＋備用電池＋記憶卡"],["旅行攝影設備","腳架、穩定器、自拍棒、記憶卡"],
+    ["轉接頭"],["吹風機","亞朵酒店的還行，可以不帶"],
+    ["離子夾","先確認是否 100–240V",{f:1}],["沖牙器"],["屁屁沖洗器"],["電話漫遊設定"]
+  ]},
+  {id:"wash", ic:"drop", t:"託運｜盥洗", items:[
+    ["個人盥洗專用包"],["牙刷"],["牙膏"],["牙線"],["棉花棒"],["漱口水"],
+    ["刮鬍刀","",{m:1}],["刮鬍泡","",{m:1}],
+    ["鼻腔清洗液"],["浴巾"],["毛巾"],["拖鞋"],["室內塑膠防水拖鞋"],
+    ["洗浴中心替換衣物"],["大包衛生紙"],["廚房紙巾"],["濕紙巾"],["酒精噴瓶"],
+    ["夾鏈袋（大量）"],["指甲剪"],["洗臉巾","過濾蓮蓬頭、卸妝兩用"],
+    ["髮束幾條","綁洗臉巾在出水口"]
+  ]},
+  {id:"hotel", ic:"shield", t:"託運｜酒店衛生與安全", items:[
+    ["一次性隔離膜膠帶組","遙控器、開關、門把、沖水鈕"],
+    ["大片塑膠隔髒組","可套在沙發與椅子"],["床包＋枕頭套"],["自己的枕頭","認床時值得帶"],
+    ["小薄被"],
+    ["睡眠用眼罩","專門放床頭"],
+    ["睡眠用耳塞","走廊聲音比想像中大"],["馬桶一次性坐墊"],["S 掛鉤 2–3 個","浴室房內都缺掛的地方"],["門檔","選有警報功能的"],
+    ["防火面罩","酒店應該也有"],["摺疊杯","取代房內杯具"],["乾淨垃圾袋"]
+  ]},
+  {id:"care", ic:"bottle", t:"託運｜保養與化妝", items:[
+    ["全套化妝品","",{f:1}],["卸妝用品","",{f:1}],["精華液","",{f:1}],["乳液"],["臉部保養品","化妝水、面膜、眼霜"],["護手霜"],
+    ["防曬乳"],["曬後修復凝膠"],["防蚊液"],
+    ["吸油面紙","",{f:1}],["痘痘貼"],["粉刺夾"],["好用的梳子","酒店的比較差"],["髮飾","",{f:1}],["大髮夾","也可夾窗簾縫",{f:1}]
+  ]},
+  {id:"cloth", ic:"shirt", t:"託運｜衣物", hint:"出發前查好當地日夜溫差，內陸與沿海差很多。", items:[
+    ["睡衣 ×2","飯店普遍不提供"],["內衣褲多套"],["衛生棉","",{f:1}],["衛生護墊","",{f:1}],
+    ["泳衣、泳帽、泳鏡","大陸泳池多半強制戴泳帽"],
+    ["特殊襪子組（防腳痛）"],["薄長袖或薄毛衣","一定穿得到"],
+    ["防風防水外套"],["薄外套"],["厚外套","溫差大或秋冬行程"],
+    ["個人衣物搭配","依天數點清"],
+    ["帽子"],["折疊傘","一律託運"],
+    ["磁吸褲腳"],["針線包"],["備用鞋子","兩雙輪替才乾得了"],["減震鞋墊"],["壓力襪或小腿套","久走隔天差很多"],["輕便雨衣","騰不出手時用"],["折疊衣架 5–6 個"],["帶夾子衣架 2 個"]
+  ]},
+  {id:"cold", ic:"snow", t:"託運｜極端天氣", hint:"一般行程遇到寒流或熱浪時用。<br>如果已經切到滑雪場景，那邊有更完整的清單。", items:[
+    ["保暖手套","選觸控式的"],
+    ["防寒帽或毛帽","要蓋住耳朵"],
+    ["圍巾或脖圍","脖圍比圍巾好收"],
+    ["雪靴或防滑鞋","鞋底紋路要深"],
+    ["防水鞋套","套在一般鞋子外面"],
+    ["發熱衣褲","比多加一件外套有效"],
+    ["厚襪或羊毛襪","腳一冷整個人都冷"],
+    ["保暖褲襪或衛生褲"],
+    ["暖暖包","貼式握式各帶一些"],
+    ["護耳或防風面罩","零下加強風時有感"],
+    ["涼感巾","浸水後可以撐很久"],
+    ["攜帶式小電扇","高溫高濕時救命"],
+    ["電解質粉或鹽糖","大量流汗時補充"]
+  ]},
+  {id:"tmtn", ic:"mtn", terr:"mtn", t:"場景｜高山健行", hint:"洋蔥式穿法：排汗底層＋保暖中層＋防風防水外層。<br>棉質衣物濕了會失溫，不要穿。", items:[
+    ["登山鞋","要先穿開，新鞋一定起水泡"],
+    ["登山杖","一對比一支好"],
+    ["頭燈＋備用電池","雙手能空出來"],
+    ["防水防風外套","硬殼，擋雨擋風"],
+    ["保暖中層","刷毛或羽絨"],
+    ["排汗快乾衣","濕了會失溫，別穿棉"],
+    ["防曬帽與太陽眼鏡","高山紫外線很強"],
+    ["行動糧","巧克力、堅果、能量棒"],
+    ["高山症用藥","三千公尺以上先諮詢醫師"],
+    ["水袋或水壺","每小時抓 500ml"],
+    ["輕量背包＋背包雨套"],
+    ["綁腿","擋碎石與泥水"],
+    ["個人急救包","水泡貼、繃帶、止痛藥"],
+    ["離線地圖與紙本路線圖","山上沒訊號"],
+    ["哨子","受傷時求救用"],
+    ["保溫瓶"]
+  ]},
+  {id:"tsea", ic:"wave", terr:"sea", t:"場景｜海邊與潛水", hint:"下水前 30 分鐘擦防曬，起水後補擦。<br>證件與電子產品全部進防水袋。", items:[
+    ["泳衣、泳褲"],
+    ["防磨衣或水母衣","防曬也防水母"],
+    ["面鏡、呼吸管","租的常漏水"],
+    ["防水袋","手機證件都要放"],
+    ["防水手機殼"],
+    ["海灘拖鞋與膠底鞋","踩礁石要包覆鞋"],
+    ["速乾大浴巾"],
+    ["礁石友善防曬","部分海域禁用一般款"],
+    ["曬後修復凝膠"],
+    ["防水相機或運動攝影機"],
+    ["耳塞","耳道容易進水的人"],
+    ["潛水證照卡與潛水記錄本","要潛水才需要"],
+    ["暈船藥","上船前 30 分鐘吃"],
+    ["濕衣物防水收納袋"]
+  ]},
+  {id:"tski", ic:"goggle", terr:"ski", t:"場景｜滑雪", hint:"雪具可租，貼身的東西一定要自備。<br>雪鏡、手套、雪襪租來的都不合用。", items:[
+    ["雪衣、雪褲","看清楚防水係數"],
+    ["雪鏡","太陽眼鏡不夠用"],
+    ["安全帽","多數雪場強制"],
+    ["防水手套","一般手套一下就濕"],
+    ["雪襪","長筒厚襪一雙就好"],
+    ["面罩或脖圍","纜車上風最大"],
+    ["保暖內層衣褲","排汗材質"],
+    ["護具","初學者很需要"],
+    ["高係數防曬與護唇膏","雪地反射紫外線加倍"],
+    ["暖暖包"],
+    ["雪具租借預約","現場排隊很久"],
+    ["雪票或課程預約"]
+  ]},
+  {id:"tcamp", ic:"tent", terr:"camp", t:"場景｜露營", hint:"睡袋看清楚適用溫度，標示常比實際樂觀。<br>瓦斯罐不能搭飛機，要在當地買。", items:[
+    ["帳篷＋營釘營槌"],
+    ["睡袋","看清楚適用溫度"],
+    ["睡墊或充氣床"],
+    ["頭燈與營燈"],
+    ["爐具與瓦斯罐","瓦斯罐不能搭飛機",{red:1}],
+    ["鍋具與餐具"],
+    ["折疊桌椅"],
+    ["保冷袋或冰桶"],
+    ["防蟲液與蚊香"],
+    ["大型垃圾袋"],
+    ["雨具與地布"],
+    ["行動電源與延長線"]
+  ]},
+  {id:"laundry", ic:"washer", t:"託運｜洗衣配套", hint:"行程長就一定要洗衣。<br>不洗的話，內衣褲數量會爆掉。", items:[
+    ["洗衣相關","亞朵可洗烘並提供洗衣精"],
+    ["髒衣袋","亞朵洗衣房可拿"],
+    ["洗衣網袋","內衣褲襪子丟洗衣機用"],
+    ["伸縮晾衣繩","亞朵浴室裡有"],
+    ["自備衣架","就不用清潔酒店的"]
+  ]},
+  {id:"lug", ic:"case", t:"託運｜行李本體", items:[
+    ["行李箱安全束帶"],["備用行李袋"],["備用大手提包","回程裝伴手禮"],
+    ["備用隨身包","可折疊斜背，落地後當日常出門包"],
+    ["行李箱重量器","回程更用得到"],["行李鎖"],["行李識別貼或束帶","轉盤上一眼認出"],
+    ["小剪刀","隨身會被沒收"],["膠帶","封箱、補破、固定隔髒布"],["攜帶式折疊椅","排隊久站時"],["摺疊小坐墊","景點台階、候車"],["摺疊購物袋"]
+  ]},
+  {id:"buy", ic:"cart", t:"落地後當地購買", hint:"可直接用美團送到飯店。", items:[
+    ["大瓶酒精","用完留在飯店"]
+  ]},
+  {id:"prep1", ic:"doc", kind:"todo", t:"出發前｜證件與資料", items:[
+    ["證件拍照","證件、信用卡、機票、訂房、保單"],
+    ["存三處","手機、雲端、紙本"],["同行三人互存對方一份"],
+    ["眼鏡度數處方拍照"],["護照效期確認","轉機時會查"]
+  ]},
+  {id:"sos", ic:"alert", kind:"todo", t:"緊急資訊｜每人一份", hint:"卡片印兩份，一份放皮夾、一份放行李箱。<br>出事的當下，沒有人有空翻手機找資料。", items:[
+    ["緊急醫療資訊卡","血型、過敏、慢性病、緊急聯絡人"],
+    ["常用藥的成分或學名","大陸藥名不同，講成分最快"],
+    ["過敏藥物寫清楚","寫清楚哪類藥、什麼反應"],
+    ["海基會 24 小時緊急服務專線","大陸撥 +886-2-2533-9995"],
+    ["大陸緊急電話","110 報警・120 急救・119 火警"],
+    ["保單號碼＋保險公司 24 小時電話"],
+    ["信用卡掛失電話","卡不見了就打不開 App"],
+    ["飯店名稱、簡體中文地址、電話","給司機或警察看"],
+    ["同行者聯絡方式與房號","互相都要有"],
+    ["家中緊急聯絡人"],
+    ["寵物保姆電話","",{pet:1}],
+    ["失聯的約定","講好集合點與時間"],
+    ["手機鎖定畫面設緊急聯絡人","鎖著也看得到"],
+    ["證件影本與卡片一起放","跟正本分開"]
+  ]},
+  {id:"prep2", ic:"wifi", kind:"todo", t:"出發前｜銀行與通訊", items:[
+    ["通知銀行出國、開通海外交易","避免被風控鎖卡"],
+    ["微信支付綁卡","支付寶的備援"],
+    ["電話漫遊開通","LINE／Google 才能用"],
+    ["下載高德地圖"],["下載大眾點評"],["下載滴滴出行"],
+    ["離線地圖下載"],["手機備份"]
+  ]},
+  {id:"fun", ic:"music", kind:"todo", t:"出發前｜娛樂下載", hint:"落地後網路不一定順。<br>機上更是完全沒訊號。", items:[
+    ["提早整理手機容量","照片影片先備份再刪，空間要夠",{red:1}],
+    ["影片離線下載","Netflix、Disney+ 等"],
+    ["音樂離線下載","先切離線模式測試過"],
+    ["Podcast、有聲書下載"],
+    ["電子書、小說下載"],
+    ["遊戲更新與離線模式確認","沒網路可能開不了"],
+    ["先挑好片單","十幾個小時，臨時挑很花時間"],
+    ["耳機充飽電"],
+    ["平板、電子書閱讀器充飽電"]
+  ]},
+  {id:"prep4", ic:"users", kind:"todo", t:"出發前｜夥伴", items:[
+    ["群組提醒：戴口罩、備妥常用藥、早睡"],["確認食物過敏"],
+    ["房型分配"],["分帳方式講清楚","誰先墊、怎麼結"]
+  ]},
+  {id:"prep5", ic:"camera", kind:"todo", t:"出發前｜打包完成後", hint:"不便險理賠要的就是這幾張照片。", items:[
+    ["行李箱外觀拍照","正面＋側面"],["內容物全景拍照"],
+    ["貴重物品單拍＋保留發票"]
+  ]},
+  {id:"clean", ic:"sparkle", kind:"todo", t:"出發前｜家中清理", hint:"這幾項不做，回家會很痛苦。", items:[
+    ["清冰箱","生鮮與開封的清掉，製冰關掉"],
+    ["倒垃圾"],
+    ["廚餘單獨處理","最容易發臭生蟲"],
+    ["排水孔補水或封住","防反臭與蟑螂"],
+    ["洗衣機清空並掀蓋","留著濕衣服會發霉"],
+    ["除濕機、清淨機水箱倒空"],
+    ["冷氣濾網先清一次","要連續運轉，髒了不冷",{pet:1}],
+    ["陽台盆栽、雜物固定","颱風季要固定"],
+    ["植物澆水"]
+  ]},
+  {id:"home", ic:"home", kind:"todo", t:"出發前｜家中關閉與安全", items:[
+    ["電子鎖或門鎖電池換新","沒電就進不了家"],
+    ["關瓦斯總開關"],
+    ["電與水不關","冷氣要 24 小時運轉",{pet:1}],
+    ["拔掉不用電器插頭","電視、烘碗機、充電座"],
+    ["網路分享器保持開啟","攝影機要靠它",{pet:1}],
+    ["關門窗"],
+    ["鎖房門","冷氣房不鎖"],
+    ["檢查通風與溫度"],
+    ["注意包裹到貨時間","確認出門前送達"],
+    ["暫停宅配、超商取貨改期","堆門口等於公告沒人"],
+    ["交代大樓管理員","代收包裹與緊急聯絡方式"],
+    ["信箱請人收"],
+    ["貴重物品收好"],
+    ["報備家人","行程、航班、住宿、回國時間"]
+  ]},
+  {id:"dep", ic:"plane", kind:"todo", t:"出發當天", hint:"依序執行。", seq:true, items:[
+    ["換新貓砂","",{pet:1}],["補水、補飼料","",{pet:1}],["設定冷氣 26–27°C","冷氣模式，不要除濕",{pet:1}],
+    ["開連續運轉，關閉定時與睡眠模式","",{pet:1}],["檢查攝影機畫面","",{pet:1}],["逐間房目視確認貓的位置","",{pet:1}],
+    ["關好寵物門","別關在沒冷氣的房間",{pet:1}],
+    ["鎖房門（冷氣房除外）"],["關門窗"],["關瓦斯"],
+    ["設定大門密碼","回國後記得刪掉"],
+    ["出門"]
+  ]},
+  {id:"back", ic:"back", kind:"todo", t:"回程日", items:[
+    ["行動電源放最好拿的位置","境內航班會查 3C"],
+    ["超過 100ml 一律託運"],
+    ["空水壺倒空"],["大瓶酒精留在飯店","小罐的 100ml 以內可以隨身"],["折疊傘放回託運"],
+    ["行李重新拍照"],["秤重"]
+  ]},
+  {id:"drive", ic:"car", kind:"todo", t:"自駕｜證件", hint:"台灣駕照和國際駕照在大陸都不能直接開車，一定要先換證。", items:[
+    ["台灣駕照正本","有效期不能過期"],
+    ["臨時機動車駕駛許可","短期用，不必筆試，限開租賃車"],
+    ["正式大陸駕駛證","體檢＋科目一筆試，效期 6 年"],
+    ["換證要帶的東西","台胞證、駕照、住宿登記、照片 2 張"],
+    ["先確認辦理地點","不是每個車管所都受理"],
+    ["租車與保險","看清楚自負額"]
+  ]},
+  {id:"cat", ic:"paw", kind:"todo", pet:true, t:"寵物｜出發前準備", hint:"家中電與水絕對不能關，冷氣要 24 小時運轉，只關瓦斯。<br>保姆一天只來一次，餵食節奏要靠機器補。", items:[
+    ["自動餵食器設定 3–4 個時段"],["確認電池＋插電雙供電","跳電才不會停"],
+    ["罐頭或肉泥分裝、貼日期"],["多備 3 天份飼料"],["多備貓砂"],
+    ["飲水至少兩處","一處要不插電的碗"],["貓砂盆多開一盆"],
+    ["攝影機測試遠端"],["攝影機角度含冷氣出風口與常待位置"],
+    ["溫濕度計放在鏡頭可見處"],["智慧插座或冷氣伴侶","可遠端開關冷氣"],
+    ["循環扇","不要直吹"],["冷氣遙控器換新電池"],
+    ["玩具擺放","分散放"],["就醫資料備妥","放保姆看得到的位置"],
+    ["外出包","跟就醫資料放一起"]
+  ]},
+  {id:"sitter", ic:"clip", kind:"todo", pet:true, t:"寵物｜保姆交代事項", items:[
+    ["大門臨時密碼","效期設為出國期間，回國刪掉"],["備用鑰匙或門禁卡"],
+    ["獸醫院名稱、電話"],["病史與用藥說明"],
+    ["跳電或冷氣故障的備案","開哪扇窗、哪台風扇"],
+    ["動線位置拍照標好","貓砂盆、飼料、飲水機"],["跟管理員說明保姆會進出"]
+  ]}
+];
+
+
+const BICO={
+ full:'<path d="M4 6h16M4 12h16M4 18h16"/>',
+ min:'<path d="M6 12h12"/><path d="M9 7h6M9 17h6"/>',
+ pet:'<ellipse cx="7" cy="10" rx="1.6" ry="2.1" fill="currentColor" stroke="none"/><ellipse cx="11.4" cy="8.2" rx="1.6" ry="2.2" fill="currentColor" stroke="none"/><ellipse cx="15.8" cy="9.6" rx="1.6" ry="2.1" fill="currentColor" stroke="none"/><path d="M11.6 12.6c-2.7 0-4.4 1.8-4.4 3.7 0 1.8 1.8 2.9 4.4 2.9s4.4-1.1 4.4-2.9c0-1.9-1.7-3.7-4.4-3.7z" fill="currentColor" stroke="none"/>',
+ nopet:'<ellipse cx="7" cy="10" rx="1.6" ry="2.1" fill="currentColor" stroke="none"/><ellipse cx="11.4" cy="8.2" rx="1.6" ry="2.2" fill="currentColor" stroke="none"/><path d="M11.6 12.6c-2.7 0-4.4 1.8-4.4 3.7 0 1.8 1.8 2.9 4.4 2.9 1.2 0 2.2-.2 3-.7" fill="none"/><path d="M3.5 20.5L20.5 3.5"/>',
+ all:'<rect x="4" y="4" width="7" height="7" rx="1.4"/><rect x="13" y="4" width="7" height="7" rx="1.4"/><rect x="4" y="13" width="7" height="7" rx="1.4"/><rect x="13" y="13" width="7" height="7" rx="1.4"/>',
+ todo:'<path d="M4 7l2.5 2.5L11 5"/><path d="M4 17l2.5 2.5L11 15"/><path d="M14 7.2h6M14 17.2h6"/>',
+ eyeoff:'<path d="M3 3l18 18"/><path d="M10.6 5.1A9.6 9.6 0 0 1 12 5c6.5 0 10 7 10 7a17.6 17.6 0 0 1-3.1 4"/><path d="M6.6 6.6A17.3 17.3 0 0 0 2 12s3.5 7 10 7a9.4 9.4 0 0 0 4.3-1"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/>',
+ man:'<circle cx="10" cy="14" r="5.2"/><path d="M14.2 9.8L20 4M15 4h5v5"/>',
+ woman:'<circle cx="12" cy="9" r="5.2"/><path d="M12 14.2V21M9 18h6"/>'
+};
+function bico(n){const _p=BICO[n]||(typeof ICONS!=='undefined'&&ICONS[n]);return _p?'<svg class="bic" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+_p+'</svg>':'';}
+const ICONS={
+ calendar:'<rect x="3.2" y="5" width="17.6" height="15.8" rx="2"/><path d="M3.2 9.6h17.6M8 3.2v3.6M16 3.2v3.6"/>',
+ umbrella:'<path d="M12 3.4c-4.8 0-8.6 3.7-8.8 8.2h17.6C20.6 7.1 16.8 3.4 12 3.4z"/><path d="M12 11.6v6.5a2.3 2.3 0 0 0 4.6 0"/>',
+ washer:'<rect x="4.4" y="3.4" width="15.2" height="17.2" rx="2"/><circle cx="12" cy="14" r="4.3"/><circle cx="8" cy="6.9" r=".85" fill="currentColor" stroke="none"/>',
+ camera:'<path d="M3.4 8.2h3.3l1.6-2.4h7.4l1.6 2.4h3.3v11.4H3.4z"/><circle cx="12" cy="13.7" r="3.5"/>',
+ sparkle:'<path d="M10 3l1.5 4.3L15.8 8.8l-4.3 1.5L10 14.6 8.5 10.3 4.2 8.8l4.3-1.5L10 3z"/><path d="M17.6 14.4l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8.8-2.2z"/>',
+ bottle:'<path d="M10 3.3h4v2.5l2.1 2.6v12.3H7.9V8.4L10 5.8V3.3z"/><path d="M7.9 12.6h8.2"/>',
+ clip:'<rect x="4.7" y="4.9" width="14.6" height="15.8" rx="2"/><path d="M9.1 4.9V3.7h5.8v1.2"/><path d="M8.7 10.6h6.6M8.7 14.1h6.6M8.7 17.3h4"/>',
+ back:'<path d="M8.2 4.4L3.4 9.2l4.8 4.8"/><path d="M3.4 9.2h9.8a5.6 5.6 0 0 1 0 11.2H8.4"/>',
+ mtn:'<path d="M2.4 19.6L9 6.9l4.2 7.7 2.3-3.6 6.1 8.6z"/><path d="M7.2 10.7L9 9.2l1.7 1.5"/>',
+ wave:'<path d="M2.2 8.6c2.5-2.1 4.6-2.1 7.1 0s4.6 2.1 7.1 0 4.6-2.1 5.4 0"/><path d="M2.2 13.4c2.5-2.1 4.6-2.1 7.1 0s4.6 2.1 7.1 0 4.6-2.1 5.4 0"/><path d="M2.2 18.2c2.5-2.1 4.6-2.1 7.1 0s4.6 2.1 7.1 0 4.6-2.1 5.4 0"/>',
+ goggle:'<rect x="2.6" y="8" width="18.8" height="8.4" rx="4.2"/><path d="M12 9.4v5.6"/><path d="M2.6 11.2c-1.1.3-1.1 2.2 0 2.5M21.4 11.2c1.1.3 1.1 2.2 0 2.5"/>',
+ tent:'<path d="M12 4.4L3 19.8h18L12 4.4z"/><path d="M12 4.4v15.4"/><path d="M8.4 19.8L12 13.6l3.6 6.2"/>',
+ city:'<path d="M3 20.4h18"/><path d="M5 20.4V9.6l5-3v13.8"/><path d="M10 20.4V12l5 2v6.4"/><path d="M15 20.4v-5l4 1.6v3.4"/><path d="M7.2 11.6v1.2M7.2 15.2v1.2M12.2 15.2v1.2"/>',
+ snow:'<path d="M12 2.6v18.8M4.2 7.1l15.6 9M19.8 7.1l-15.6 9"/><path d="M9.4 4.6L12 7l2.6-2.4M9.4 19.4L12 17l2.6 2.4"/><path d="M4.9 10.6l.5-3.4 3.4.1M19.1 13.4l-.5 3.4-3.4-.1M19.1 10.6l-.5-3.4-3.4.1M4.9 13.4l.5 3.4 3.4-.1"/>',
+ bolt:'<path d="M13 2L5 13h5l-1 9 8-12h-5l1-8z" fill="currentColor" stroke="none"/>',
+ clock:'<circle cx="12" cy="12" r="8.5"/><path d="M12 7.2v5.1l3.2 2"/>',
+ bag:'<path d="M4.5 8h15l-1.2 12H5.7L4.5 8z"/><path d="M9 8V6.2a3 3 0 0 1 6 0V8"/>',
+ plug:'<path d="M9 3v5M15 3v5"/><path d="M6.5 8h11v3.2a5.5 5.5 0 0 1-11 0V8z"/><path d="M12 16.7V21"/>',
+ drop:'<path d="M12 3.2s6 6.4 6 10.2a6 6 0 1 1-12 0C6 9.6 12 3.2 12 3.2z"/>',
+ shield:'<path d="M12 3l7.5 2.8v5.7c0 4.7-3.2 7.6-7.5 8.5-4.3-.9-7.5-3.8-7.5-8.5V5.8L12 3z"/>',
+ heart:'<path d="M12 20s-7-4.3-7-8.9a3.9 3.9 0 0 1 7-2.5 3.9 3.9 0 0 1 7 2.5C19 15.7 12 20 12 20z"/>',
+ shirt:'<path d="M8.4 3.2L12 5l3.6-1.8L20 6.3l-2.1 3.2-2-1V20.5H8.1V8.5l-2 1L4 6.3l4.4-3.1z"/>',
+ case:'<rect x="3.2" y="7.2" width="17.6" height="12.6" rx="2"/><path d="M9 7.2V5.4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v1.8"/><path d="M9 11v5M15 11v5"/>',
+ cart:'<circle cx="9.5" cy="19.5" r="1.4"/><circle cx="17" cy="19.5" r="1.4"/><path d="M2.8 4h2.4l2.6 11h10L20.5 7.6H6.2"/>',
+ doc:'<path d="M6.2 3.2h7.6l4 4v13.6H6.2z"/><path d="M13.8 3.2v4h4"/><path d="M9 12h6M9 15.5h6"/>',
+ alert:'<path d="M12 3.4l9 15.6H3l9-15.6z"/><path d="M12 9.6v4.2"/><circle cx="12" cy="16.6" r=".9" fill="currentColor" stroke="none"/>',
+ wifi:'<path d="M3.4 9.2a14 14 0 0 1 17.2 0"/><path d="M6.8 12.6a9.3 9.3 0 0 1 10.4 0"/><path d="M10 15.9a4.6 4.6 0 0 1 4 0"/><circle cx="12" cy="19" r="1.1" fill="currentColor" stroke="none"/>',
+ music:'<path d="M9.2 18.2V5.2l10-2v13"/><circle cx="6.7" cy="18.2" r="2.5"/><circle cx="16.7" cy="16.2" r="2.5"/>',
+ users:'<circle cx="9" cy="8" r="3.2"/><path d="M3.2 20.2a5.8 5.8 0 0 1 11.6 0"/><path d="M16.2 5.4a3 3 0 0 1 0 5.6M18.4 20.2a5.6 5.6 0 0 0-2.1-4.1"/>',
+ home:'<path d="M3.6 11.2L12 4l8.4 7.2"/><path d="M6.2 10.2v10h11.6v-10"/>',
+ plane:'<path d="M21.6 3L2.6 10.6l6.9 2.5 2.5 6.9L21.6 3z"/><path d="M9.5 13.1l4.4-4.4"/>',
+ car:'<path d="M4.2 15l1.6-5.6A2 2 0 0 1 7.7 8h8.6a2 2 0 0 1 1.9 1.4L19.8 15"/><rect x="3" y="15" width="18" height="4.2" rx="1.2"/><circle cx="7.2" cy="19.2" r="1.1"/><circle cx="16.8" cy="19.2" r="1.1"/>',
+ paw:'<ellipse cx="6.8" cy="9.6" rx="1.8" ry="2.3" fill="currentColor" stroke="none"/><ellipse cx="11.3" cy="7.6" rx="1.8" ry="2.4" fill="currentColor" stroke="none"/><ellipse cx="16" cy="9" rx="1.8" ry="2.3" fill="currentColor" stroke="none"/><path d="M11.6 12.2c-3 0-4.9 2-4.9 4.1 0 2 2 3.2 4.9 3.2s4.9-1.2 4.9-3.2c0-2.1-1.9-4.1-4.9-4.1z" fill="currentColor" stroke="none"/>',
+ fish:'<path d="M2.5 12c2.9-3.9 6.7-5.8 10.5-5.8 2.8 0 4.7 1.4 5.7 2.9l3-2v9.8l-3-2c-1 1.5-2.9 2.9-5.7 2.9-3.8 0-7.6-1.9-10.5-5.8z"/><circle cx="8.2" cy="10.9" r=".9" fill="currentColor" stroke="none"/>'
+};
+function icon(n){
+  return n&&ICONS[n] ? '<svg class="sic" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">'+ICONS[n]+'</svg>' : '';
+}
+document.documentElement.lang="zh-Hant";
+const EYE='<svg class="eyeoff" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l18 18"/><path d="M10.6 5.1A9.6 9.6 0 0 1 12 5c6.5 0 10 7 10 7a17.6 17.6 0 0 1-3.1 4"/><path d="M6.6 6.6A17.3 17.3 0 0 0 2 12s3.5 7 10 7a9.4 9.4 0 0 0 4.3-1"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>';
+const KEY="dalian-0904-checklist";
+let state={}, todoOnly=false, hideSkip=false, tab="all", lastCount="0 / 0";
+const listEl=document.getElementById("list"),
+      fillEl=document.getElementById("fill"),
+      countEl=document.getElementById("count");
+
+function build(){
+  listEl.innerHTML="";
+  DATA.forEach(sec=>{
+    const s=document.createElement("section");
+    if(sec.hot)s.className="hot";
+    if(sec.pet)s.className=(s.className?s.className+" ":"")+"pet";
+    s.dataset.sec=sec.id;
+    s.dataset.kind=sec.kind||"item";
+    if(sec.seq)s.dataset.seq="1";
+    if(sec.terr)s.dataset.terr=sec.terr;
+    if(sec.pet)s.dataset.pet="1";
+    const _ck=sec.items.map((it,i)=>sec.id+"-"+i)
+      .concat((state.__custom&&state.__custom[sec.id]||[]).map(c=>c.k));
+    const allSkip=_ck.every(k=>(state[k]||0)==2);
+    s.innerHTML='<h2>'+icon(sec.ic)+'<span>'+sec.t+'</span><span class="n" data-n="'+sec.id+'"></span>'
+      +'<button class="secskip" data-sec="'+sec.id+'" title="整組不需要">'
+      +(allSkip?'整組復原':EYE+'<span class="sklab">整組不需要</span>')+'</button></h2>'
+      +(sec.hint?'<p class="hint">'+sec.hint+'</p>':'');
+    const ul=document.createElement("ul");
+    sec.items.forEach((it,i)=>{
+      const key=sec.id+"-"+i;
+      const li=document.createElement("li");
+      li.dataset.key=key; li.dataset.s=state[key]||0;
+      if(sec.pet||(it[2]&&it[2].pet))li.dataset.pet="1";
+      const seq=sec.seq?'<span class="step">'+(i+1)+'</span> ':'';
+      const isInp = it[2]&&it[2].inp;
+      const body = isInp
+        ? '<input class="fill" type="text" data-v="'+key+'" placeholder="自行填寫" value="'
+            +((state[key+"-v"]||"").replace(/"/g,"&quot;"))+'">'
+        : seq+((it[2]&&it[2].red)?'<span class="imp">'+it[0]+'</span>':it[0])
+          +(it[1]?'<span class="note">'+it[1]+'</span>':'');
+      li.innerHTML='<label><span class="box"></span><span class="txt">'+body+'</span></label>'
+        +'<button class="skipbtn" title="這項不需要">'+(state[key]==2?'復原':EYE)+'</button>';
+      ul.appendChild(li);
+    });
+    (state.__custom&&state.__custom[sec.id]||[]).forEach(cu=>{
+      const li=document.createElement("li");
+      li.dataset.key=cu.k; li.dataset.s=state[cu.k]||0;
+      if(sec.pet)li.dataset.pet="1";
+      li.innerHTML='<label><span class="box"></span><span class="txt">'
+        +'<input class="cname" data-k="'+cu.k+'" placeholder="自己新增的項目" value="'
+        +String(cu.t||"").replace(/"/g,"&quot;")+'"></span></label>'
+        +'<button class="skipbtn cdel" data-k="'+cu.k+'" data-sec="'+sec.id+'" title="刪除這一項">\u2715</button>';
+      ul.appendChild(li);
+    });
+    const add=document.createElement("li");
+    add.className="addrow";
+    add.innerHTML='<button class="addbtn" data-sec="'+sec.id+'">＋ 新增項目</button>';
+    ul.appendChild(add);
+    s.appendChild(ul); listEl.appendChild(s);
+  });
+  refresh();
+}
+
+function uid(){return "cu"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
+listEl.addEventListener("click",e=>{
+  if(e.target.classList.contains("fill")||e.target.classList.contains("cname"))return;
+  const ab=e.target.closest(".addbtn");
+  if(ab){
+    const sid=ab.dataset.sec;
+    state.__custom=state.__custom||{};
+    state.__custom[sid]=state.__custom[sid]||[];
+    const k=uid();
+    state.__custom[sid].push({k:k,t:""});
+    save(); build();
+    const el=listEl.querySelector('.cname[data-k="'+k+'"]');
+    if(el){el.focus();try{el.scrollIntoView({block:"center"});}catch(e){}}
+    return;
+  }
+  const cd=e.target.closest(".cdel");
+  if(cd){
+    const sid=cd.dataset.sec,k=cd.dataset.k;
+    state.__custom[sid]=(state.__custom[sid]||[]).filter(x=>x.k!==k);
+    delete state[k]; delete state[k+"-p"];
+    save(); build();
+    return;
+  }
+  const sb=e.target.closest(".secskip");
+  if(sb){
+    const sec=DATA.find(x=>x.id===sb.dataset.sec);
+    const keys=sec.items.map((it,i)=>sec.id+"-"+i)
+      .concat((state.__custom&&state.__custom[sec.id]||[]).map(c=>c.k));
+    const allSkip=keys.every(k=>(state[k]||0)==2);
+    keys.forEach(k=>{
+      const cur=state[k]||0;
+      if(allSkip){ state[k]=state[k+"-p"]||0; delete state[k+"-p"]; }
+      else { if(cur&&cur!=2)state[k+"-p"]=cur; state[k]=2; }
+    });
+    save(); build();
+    return;
+  }
+  const li=e.target.closest("li"); if(!li)return;
+  const k=li.dataset.key, cur=state[k]||0;
+  if(e.target.closest(".skipbtn")){
+    if(cur==2){ state[k]=state[k+"-p"]||0; delete state[k+"-p"]; }
+    else { if(cur)state[k+"-p"]=cur; state[k]=2; }
+  }
+  else if(cur!=2) state[k]= cur==1?0:1;
+  else return;
+  li.dataset.s=state[k];
+  li.querySelector(".skipbtn").innerHTML= state[k]==2?'復原':EYE;
+  save(); refresh();
+});
+
+listEl.addEventListener("input",e=>{
+  if(e.target.classList.contains("cname")){
+    const k=e.target.dataset.k;
+    Object.keys(state.__custom||{}).forEach(sid=>{
+      (state.__custom[sid]||[]).forEach(x=>{if(x.k===k)x.t=e.target.value;});
+    });
+    if(!e.target.value.trim()&&state[k]==1)state[k]=0;
+    const li=e.target.closest("li"); if(li)li.dataset.s=state[k]||0;
+    save(); refresh(); return;
+  }
+  if(e.target.classList.contains("fill")){
+    const k=e.target.dataset.v, val=e.target.value;
+    state[k+"-v"]=val;
+    if(!val.trim()&&state[k]==1)state[k]=0;      // 清空文字就一併取消勾選
+    const li=e.target.closest("li"); if(li)li.dataset.s=state[k]||0;
+    save(); refresh();
+  }
+});
+
+function refresh(){
+  let done=0,total=0;
+  DATA.forEach(sec=>{
+    let d=0,t=0;
+    const inTab = (tab==="all" || (sec.kind||"item")===tab) && terrOK(sec) && !(sec.pet&&!petOn());
+    sec.items.forEach((it,i)=>{
+      const k=sec.id+"-"+i, v=state[k]||0;
+      if(v==2)return;
+      if(!petOn()&&(sec.pet||(it[2]&&it[2].pet)))return;
+      if(it[2]&&it[2].inp&&!(state[k+"-v"]||"").trim())return;
+      t++; if(v==1)d++;
+    });
+    (state.__custom&&state.__custom[sec.id]||[]).forEach(cu=>{
+      const v=state[cu.k]||0;
+      if(v==2||!String(cu.t||"").trim())return;
+      if(sec.pet&&!petOn())return;
+      t++; if(v==1)d++;
+    });
+    if(inTab){done+=d; total+=t;}
+    const n=listEl.querySelector('[data-n="'+sec.id+'"]');
+    if(n)n.textContent=t?d+" / "+t:"—";
+  });
+  lastCount=done+" / "+total;
+  countEl.textContent=lastCount;
+  fillEl.style.width=total?(done/total*100).toFixed(1)+"%":"0%";
+  applyFilter();
+}
+
+const qEl=document.getElementById("q"), qclr=document.getElementById("qclr");
+const toTop=document.getElementById("toTop");
+
+const jumpOv=document.getElementById("jumpOv"), jlist=document.getElementById("jlist");
+function buildJump(){
+  if(!listEl.querySelector("section")) return;
+  jlist.innerHTML="";
+  let shown=0;
+  listEl.querySelectorAll("section").forEach(el=>{
+    if(el.style.display==="none")return;
+    const sec=DATA.find(x=>x.id===el.dataset.sec); if(!sec)return;
+    const lis=[...el.querySelectorAll("li[data-key]")];
+    const n=lis.filter(li=>{
+      if(li.classList.contains("hide"))return false;
+      const ie=li.querySelector(".cname,.fill");
+      return !ie || ie.value.trim()!=="";
+    }).length;
+    if(n===0)return;
+    shown++;
+    const b=document.createElement("button");
+    b.className="jitem"+(sec.pet?" pet":"")+(sec.hot?" hot":"");
+    b.dataset.sec=sec.id;
+    const todo=sec.kind==="todo";
+    b.innerHTML='<span class="jk'+(todo?" todo":"")+'">'+(todo?"待辦":"物品")+'</span>'
+      +icon(sec.ic)+'<span>'+sec.t.replace(/^[^｜]*｜/,"")+'</span>'
+      +'<span class="jn">'+n+'</span>';
+    b.onclick=()=>{ closeJump(); setTimeout(()=>goTo(sec.id),120); };
+    jlist.appendChild(b);
+  });
+  if(!shown){
+    const e=document.createElement("p");
+    e.className="noresult"; e.style.padding="18px 16px";
+    e.textContent="目前的篩選條件下沒有可跳轉的段落。";
+    jlist.appendChild(e);
+  }
+}
+let jumpDirty=true;
+function openJump(){ if(jumpDirty){buildJump();jumpDirty=false;} jumpOv.hidden=false; document.body.style.overflow="hidden"; }
+function closeJump(){ jumpOv.hidden=true; document.body.style.overflow=""; }
+document.getElementById("jumpBtn").onclick=openJump;
+document.getElementById("jumpX").onclick=closeJump;
+jumpOv.addEventListener("click",e=>{ if(e.target===jumpOv) closeJump(); });
+function goTo(id){
+  const el=listEl.querySelector('section[data-sec="'+id+'"]');
+  if(!el)return;
+  const off=document.getElementById("gauge").offsetHeight+10;
+  const y=el.getBoundingClientRect().top+window.pageYOffset-off;
+  window.scrollTo({top:y<0?0:y,behavior:"smooth"});
+}
+function runSearch(){ qclr.classList.toggle("on",!!qEl.value); applyFilter(); }
+["input","change","keyup","compositionend","search","paste","cut"].forEach(ev=>{
+  qEl.addEventListener(ev,()=>setTimeout(runSearch,0));
+});
+document.getElementById("qgo").onclick=()=>{ runSearch(); qEl.blur(); };
+qEl.addEventListener("keydown",e=>{ if(e.key==="Enter"){ e.preventDefault(); runSearch(); qEl.blur(); } });
+qclr.onclick=()=>{ qEl.value=""; qclr.classList.remove("on"); applyFilter(); qEl.focus(); };
+const helpOv=document.getElementById("helpOv");
+let lastFocus=null;
+function openHelp(){ lastFocus=document.activeElement; helpOv.hidden=false;
+  document.body.style.overflow="hidden"; setTimeout(()=>document.getElementById("helpX").focus(),50); }
+function closeHelp(){
+  helpOv.hidden=true; document.body.style.overflow=""; state.__helpSeen=1; save();
+  if(!state.__warnSeen) setTimeout(openWarn,180);
+}
+document.getElementById("helpFab").onclick=openHelp;
+document.getElementById("helpX").onclick=closeHelp;
+document.getElementById("helpOk").onclick=closeHelp;
+helpOv.addEventListener("click",e=>{ if(e.target===helpOv) closeHelp(); });
+document.addEventListener("keydown",e=>{
+  if(e.key!=="Escape")return;
+  if(!helpOv.hidden) closeHelp();
+  else if(!warnOv.hidden) closeWarn();
+  else if(!document.getElementById("jumpOv").hidden) closeJump();
+});
+
+const toBot=document.getElementById("toBot");
+toTop.onclick=()=>window.scrollTo({top:0,behavior:"smooth"});
+toBot.onclick=()=>window.scrollTo({top:document.body.scrollHeight,behavior:"smooth"});
+function navPaint(){
+  const y=window.pageYOffset, h=document.body.scrollHeight-window.innerHeight;
+  toTop.classList.toggle("on",y>360);
+  toBot.classList.toggle("on",h-y>360);
+}
+window.addEventListener("scroll",navPaint,{passive:true});
+window.addEventListener("resize",navPaint,{passive:true});
+setTimeout(navPaint,300);
+
+function applyFilter(){
+  const q=(qEl.value||"").trim().toLowerCase();
+  let found=0;
+  listEl.querySelectorAll("li[data-key]").forEach(li=>{
+    const v=state[li.dataset.key]||0;
+    if(q){
+      const ie=li.querySelector(".cname,.fill");
+      const hit=!(li.dataset.pet&&!petOn())&&(li.textContent+" "+(ie?ie.value:"")).toLowerCase().includes(q);
+      li.classList.toggle("hide",!hit);
+      if(hit)found++;
+    } else {
+      li.classList.toggle("hide",(li.dataset.pet&&!petOn())||(todoOnly&&v==1)||(hideSkip&&v==2)||(todoOnly&&v==2));
+    }
+  });
+  listEl.querySelectorAll("section").forEach(s=>{
+    const all=[...s.querySelectorAll("li[data-key]")];
+    const tOK = (!s.dataset.terr || !!(state.__terr&&state.__terr[s.dataset.terr]))
+              && !(s.dataset.pet&&!petOn());
+    const inTab = tOK && (q ? true : (tab==="all" || s.dataset.kind===tab));
+    s.style.display=(inTab&&all.some(li=>!li.classList.contains("hide")))?"":"none";
+    s.classList.toggle("allskip",all.length>0&&all.every(li=>(state[li.dataset.key]||0)==2));
+  });
+  listEl.querySelectorAll("li.addrow").forEach(el=>el.classList.toggle("hide",!!q));
+  listEl.querySelectorAll('section[data-seq]').forEach(sec=>{
+    let k=0;
+    sec.querySelectorAll('li[data-key]').forEach(li=>{
+      const sp=li.querySelector(".step"); if(!sp)return;
+      if(li.classList.contains("hide")){ sp.textContent=""; return; }
+      k++; sp.textContent=k;
+    });
+  });
+  let nr=document.getElementById("noresult");
+  if(q&&found===0){
+    if(!nr){nr=document.createElement("p");nr.id="noresult";nr.className="noresult";listEl.appendChild(nr);}
+    nr.textContent='找不到含有「'+qEl.value.trim()+'」的項目。';
+  } else if(nr){ nr.remove(); }
+  countEl.textContent = q ? ("搜尋到 "+found+" 項") : lastCount;
+  jumpDirty=true;
+}
+
+const MINSKIP=[
+ "大絲巾或圍巾","頸枕","塑膠手套","空水壺或保溫瓶","束腳帶（綁腿）","機上備用鞋",
+ "小瓶保濕乳液或噴霧","食物夾鏈袋","小螺絲起子＋備用螺絲","筆電","平板電腦","平板支架",
+ "吹風機","離子夾","沖牙器","屁屁沖洗器","延長線","相機＋備用電池＋記憶卡","旅行攝影設備",
+ "個人盥洗專用包","漱口水","鼻腔清洗液","浴巾","毛巾","拖鞋","室內塑膠防水拖鞋",
+ "大包衛生紙","廚房紙巾","洗臉巾","髮束幾條","棉花棒","指甲剪",
+ "一次性隔離膜膠帶組","大片塑膠隔髒組","床包＋枕頭套","自己的枕頭","小薄被",
+ "睡眠用眼罩","睡眠用耳塞","馬桶一次性坐墊","S 掛鉤 2–3 個","摺疊杯","乾淨垃圾袋",
+ "全套化妝品","卸妝用品","精華液","臉部保養品","曬後修復凝膠","吸油面紙",
+ "痘痘貼","粉刺夾","好用的梳子","髮飾","大髮夾",
+ "睡衣 ×2","厚外套","泳衣、泳帽、泳鏡","磁吸褲腳","針線包","備用鞋子",
+ "減震鞋墊","壓力襪或小腿套","輕便雨衣","折疊衣架 5–6 個","帶夾子衣架 2 個",
+ "洗衣網袋","伸縮晾衣繩","自備衣架","髒衣袋",
+ "備用行李袋","備用大手提包","行李箱重量器","摺疊購物袋","攜帶式折疊椅","摺疊小坐墊",
+ "行李識別貼或束帶","小剪刀","膠帶","行李鎖","大瓶酒精","平板、電子書閱讀器充飽電"
+];
+function markMin(){
+  DATA.forEach(sec=>sec.items.forEach((it,i)=>{
+    if(it[0]&&MINSKIP.indexOf(it[0])>=0) state[sec.id+"-"+i]=2;
+  }));
+}
+function markFlag(flag){
+  DATA.forEach(sec=>sec.items.forEach((it,i)=>{
+    if(it[2]&&it[2][flag]) state[sec.id+"-"+i]=2;
+  }));
+}
+function petOn(){ return !!state.__pet; }
+function terrOn(k){ return !!(state.__terr&&state.__terr[k]); }
+function terrOK(sec){ return !sec.terr || terrOn(sec.terr); }
+function applyPresets(rebuild){
+  const keep={};
+  Object.keys(state).forEach(k=>{
+    if(state[k]==1||k.endsWith("-v")||k.endsWith("-p")||k.startsWith("__"))keep[k]=state[k];
+  });
+  state=keep;
+  if(state.__vMode==="min"){ markMin(); hideSkip=true; press("fHide",1); }
+  if(state.__vSex==="male") markFlag("f");
+  if(state.__vSex==="female") markFlag("m");
+  save(); if(rebuild)build();
+}
+function paintPresetBtns(){
+  document.querySelectorAll("[data-g]").forEach(b=>{
+    const cur = b.dataset.g==="mode" ? (state.__vMode||"full") : (state.__vSex||"full");
+    b.setAttribute("aria-pressed", b.dataset.v===cur ? "true":"false");
+  });
+  document.querySelectorAll("[data-add]").forEach(b=>{
+    const k=b.dataset.add;
+    const on = k==="pet" ? !!state.__pet : terrOn(k);
+    b.setAttribute("aria-pressed", on?"true":"false");
+    const pm=b.querySelector(".pm"); if(pm) pm.textContent = on ? "\u2713" : "＋";
+  });
+}
+document.querySelectorAll("[data-g]").forEach(b=>b.onclick=()=>{
+  if(b.dataset.g==="mode") state.__vMode=b.dataset.v; else state.__vSex=b.dataset.v;
+  paintPresetBtns(); applyPresets(true);
+});
+document.querySelectorAll("[data-add]").forEach(b=>b.onclick=()=>{
+  const k=b.dataset.add;
+  if(k==="pet"){ state.__pet=state.__pet?0:1; }
+  else { state.__terr=state.__terr||{}; if(state.__terr[k])delete state.__terr[k]; else state.__terr[k]=1; }
+  paintPresetBtns(); applyPresets(true);
+});
+
+document.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>{
+  tab=b.dataset.t; state.__tab=tab;
+  document.querySelectorAll("[data-t]").forEach(x=>x.setAttribute("aria-pressed",x.dataset.t===tab?"true":"false"));
+  save(); refresh();
+});
+function press(id,on){document.getElementById(id).setAttribute("aria-pressed",on?"true":"false");}
+document.getElementById("fAll").onclick=()=>{todoOnly=false;press("fAll",1);press("fTodo",0);applyFilter();};
+document.getElementById("fTodo").onclick=()=>{todoOnly=true;press("fTodo",1);press("fAll",0);applyFilter();};
+document.getElementById("fHide").onclick=()=>{hideSkip=!hideSkip;press("fHide",hideSkip);applyFilter();};
+const resetBtn=document.getElementById("btnReset"),
+      resetMsg=document.getElementById("resetMsg");
+let armed=0, armTimer=null;
+function disarm(){
+  armed=0; clearTimeout(armTimer);
+  resetBtn.textContent="全部還原";
+  resetBtn.classList.remove("danger");
+  resetMsg.style.display="none";
+}
+resetBtn.onclick=()=>{
+  if(!armed){
+    armed=1;
+    resetBtn.textContent="再按一次確認";
+    resetBtn.classList.add("danger");
+    resetMsg.style.display="block";
+    armTimer=setTimeout(disarm,8000);
+    return;
+  }
+  const keepSlots=state.__slots;
+  state={};if(keepSlots)state.__slots=keepSlots;
+  memoEl.value="";destEl.value="";dateEl.value="";save();
+  state.__pet=0;state.__terr={};state.__vSex="full";state.__vMode="full";tab="all";paintPresetBtns();
+  document.querySelectorAll("[data-t]").forEach(x=>x.setAttribute("aria-pressed",x.dataset.t==="all"?"true":"false"));
+  todoOnly=false;hideSkip=false;
+  press("fAll",1);press("fTodo",0);press("fHide",0);
+  disarm();
+  resetMsg.textContent="已全部還原。";
+  resetMsg.style.display="block";
+  setTimeout(()=>{resetMsg.style.display="none";
+    resetMsg.textContent="所有勾選、不需要的標記、自填藥品、備註、目的地與出發日都會清空，且無法復原。版本存檔不受影響，會保留。";},2500);
+  build();
+};
+
+const MEM={};
+let store="memory";
+async function detectStore(){
+  const t0=Date.now();
+  while(!window.storage&&Date.now()-t0<900){await new Promise(r=>setTimeout(r,50));}
+  try{ if(window.storage){ await window.storage.get(KEY).catch(()=>{}); store="claude"; return; } }catch(e){}
+  try{ localStorage.setItem(KEY+"_t","1"); localStorage.removeItem(KEY+"_t"); store="local"; return; }catch(e){}
+  store="memory";
+}
+function footNote(){
+  const f=document.querySelector("footer");
+  if(store==="memory") f.textContent="這個環境無法自動保存。請用下方的備份碼手動保存，否則關掉頁面紀錄就會消失。";
+  else f.textContent="勾選會自動保存在這台裝置的這個瀏覽器。換裝置或清除瀏覽器資料前，記得先產生備份碼。";
+}
+async function save(){
+  const v=JSON.stringify(state);
+  try{
+    if(store==="claude") await window.storage.set(KEY,v);
+    else if(store==="local") localStorage.setItem(KEY,v);
+    else MEM[KEY]=v;
+  }catch(e){ store="memory"; MEM[KEY]=v; footNote(); }
+}
+async function load(){
+  await detectStore();
+  try{
+    if(store==="claude"){const r=await window.storage.get(KEY); if(r&&r.value)state=JSON.parse(r.value);}
+    else if(store==="local"){const v=localStorage.getItem(KEY); if(v)state=JSON.parse(v);}
+  }catch(e){}
+}
+
+const warnOv=document.getElementById("warnOv");
+function openWarn(){ lastFocus=document.activeElement; warnOv.hidden=false;
+  document.body.style.overflow="hidden"; setTimeout(()=>document.getElementById("warnX").focus(),50); }
+function closeWarn(){ warnOv.hidden=true; document.body.style.overflow=""; state.__warnSeen=1; save();
+  if(lastFocus&&lastFocus.focus)lastFocus.focus(); }
+document.getElementById("warnBtn").onclick=openWarn;
+document.getElementById("warnFab").onclick=openWarn;
+document.getElementById("warnX").onclick=closeWarn;
+document.getElementById("warnOk").onclick=closeWarn;
+warnOv.addEventListener("click",e=>{ if(e.target===warnOv) closeWarn(); });
+
+const destEl=document.getElementById("mDest"), dateEl=document.getElementById("mDate");
+destEl.addEventListener("input",()=>{state.__dest=destEl.value;save();});
+dateEl.addEventListener("change",()=>{state.__date=dateEl.value;save();});
+const slotMsg=document.getElementById("slotMsg");
+function sayS(t){slotMsg.textContent=t;setTimeout(()=>{if(slotMsg.textContent===t)slotMsg.textContent="";},4000);}
+function nowStr(){
+  const d=new Date(),z=n=>String(n).padStart(2,"0");
+  return d.getFullYear()+"/"+z(d.getMonth()+1)+"/"+z(d.getDate())+" "+z(d.getHours())+":"+z(d.getMinutes());
+}
+function clone(o){ try{return JSON.parse(JSON.stringify(o));}catch(e){return Object.assign({},o);} }
+function snapshot(){const o={};Object.keys(state).forEach(k=>{if(k!=="__slots")o[k]=state[k];});return clone(o);}
+function slots(){return state.__slots||(state.__slots={});}
+function paintSlots(){
+  const z=document.getElementById("slot0time");
+  if(z){ const t=countDone({}); z.textContent="完整 "+t.total+" 項，全部未勾選"; }
+  document.querySelectorAll(".slot").forEach(el=>{
+    const i=el.dataset.slot; if(i==="0")return;
+    const sl=slots()[i], nameEl=el.querySelector(".sname");
+    if(sl&&sl.name&&document.activeElement!==nameEl) nameEl.value=sl.name;
+    el.querySelector(".stime").textContent = sl&&sl.time
+      ? sl.time+"　已完成 "+(sl.done||0)+" ／ 需要 "+(sl.count||0)
+      : "尚未存檔";
+    el.querySelector(".load").disabled = !(sl&&sl.data);
+  });
+}
+function countDone(o){
+  let n=0,dn=0;
+  const tr=o.__terr||{};
+  const pet=!!o.__pet;
+  DATA.forEach(sec=>{
+    if(sec.terr&&!tr[sec.terr])return;
+    if(sec.pet&&!pet)return;
+    sec.items.forEach((it,i)=>{
+    const k=sec.id+"-"+i;
+    if((o[k]||0)===2)return;
+    if(!pet&&(it[2]&&it[2].pet))return;
+    if(it[2]&&it[2].inp&&!(o[k+"-v"]||"").trim())return;
+    n++; if((o[k]||0)===1)dn++;
+    });
+  });
+  Object.keys(o.__custom||{}).forEach(sid=>{
+    const sec=DATA.find(x=>x.id===sid);
+    if(sec&&sec.terr&&!tr[sec.terr])return;
+    if(sec&&sec.pet&&!pet)return;
+    (o.__custom[sid]||[]).forEach(cu=>{
+      if((o[cu.k]||0)===2||!String(cu.t||"").trim())return;
+      n++; if((o[cu.k]||0)===1)dn++;
+    });
+  });
+  return {done:dn,total:n};
+}
+let armSlot=null,armTimer2=null;
+function disarmSlot(){
+  if(armSlot){
+    const b=armSlot.btn;
+    b.textContent=armSlot.label; b.classList.remove("warn");
+    if(armSlot.wasFill)b.classList.add("fill");
+  }
+  armSlot=null; clearTimeout(armTimer2);
+}
+document.querySelectorAll(".slot").forEach(el=>{
+  const i=el.dataset.slot;
+  const nameEl=el.querySelector(".sname");
+  if(nameEl) nameEl.oninput=()=>{
+    const sl=slots(); sl[i]=sl[i]||{}; sl[i].name=nameEl.value; save();
+  };
+  const put=el.querySelector(".put");
+  if(put) put.onclick=()=>{
+    const has=!!(slots()[i]&&slots()[i].data);
+    if(has&&(!armSlot||armSlot.btn!==put)){
+      disarmSlot();
+      armSlot={btn:put,label:put.textContent,wasFill:put.classList.contains("fill")};
+      put.classList.remove("fill"); put.classList.add("warn"); put.textContent="覆蓋？再按一次";
+      armTimer2=setTimeout(disarmSlot,8000);
+      sayS("這一格已經有存檔，再按一次會覆蓋掉。");
+      return;
+    }
+    disarmSlot();
+    const sl=slots();
+    const cnt=countDone(state);
+    sl[i]={name:(nameEl?nameEl.value:"")||("版本"+i),time:nowStr(),
+           count:cnt.total,done:cnt.done,data:snapshot()};
+    save(); paintSlots(); sayS("已存進「"+sl[i].name+"」。");
+  };
+  const load=el.querySelector(".load");
+  load.onclick=()=>{
+    if(!armSlot||armSlot.btn!==load){
+      disarmSlot();
+      armSlot={btn:load,label:load.textContent,wasFill:false};
+      load.classList.add("warn"); load.textContent="會蓋掉目前？再按一次";
+      armTimer2=setTimeout(disarmSlot,8000);
+      sayS("讀取會取代你目前的清單狀態，再按一次確認。");
+      return;
+    }
+    disarmSlot();
+    const keep=state.__slots;
+    if(i==="0"){ state={}; }
+    else { const sl=slots()[i]; if(!sl||!sl.data)return; state=clone(sl.data); }
+    state.__slots=keep;
+    save(); paintAll(); paintSlots();
+    sayS(i==="0"?"已回到原始詳細版。":"已讀取「"+(slots()[i].name)+"」。");
+  };
+});
+
+const bakEl=document.getElementById("bak"), bakMsg=document.getElementById("bakMsg");
+function say(t){bakMsg.textContent=t;setTimeout(()=>{if(bakMsg.textContent===t)bakMsg.textContent="";},4000);}
+document.getElementById("btnExport").onclick=()=>{
+  try{
+    bakEl.value=btoa(encodeURIComponent(JSON.stringify(state)));
+    say("備份碼已產生，請複製後保存。");
+  }catch(e){ say("產生失敗，請再試一次。"); }
+};
+document.getElementById("btnCopy").onclick=async()=>{
+  if(!bakEl.value.trim()){say("框裡還沒有備份碼，請先按「產生備份碼」。");return;}
+  try{ await navigator.clipboard.writeText(bakEl.value); say("已複製。"); }
+  catch(e){ bakEl.select(); say("請長按框內文字手動複製。"); }
+};
+document.getElementById("btnImport").onclick=()=>{
+  const v=bakEl.value.trim();
+  if(!v){say("請先把備份碼貼進框裡。");return;}
+  let obj;
+  try{ obj=JSON.parse(decodeURIComponent(atob(v))); }
+  catch(e){ say("備份碼看起來不正確，請確認有沒有複製完整。"); return; }
+  if(!obj||typeof obj!=="object"){ say("備份碼看起來不正確。"); return; }
+  state=obj;
+  memoEl.value=state.__memo||"";
+  destEl.value=state.__dest||""; dateEl.value=state.__date||"";
+  tab=state.__tab||"all";
+  document.querySelectorAll("[data-t]").forEach(x=>x.setAttribute("aria-pressed",x.dataset.t===tab?"true":"false"));
+  paintPresetBtns(); paintSlots(); save(); build();
+  say("已還原。");
+};
+
+const memoEl=document.getElementById("memo");
+memoEl.addEventListener("input",()=>{state.__memo=memoEl.value;save();});
+
+function paintAll(){
+  memoEl.value=state.__memo||"";
+  destEl.value=state.__dest||""; dateEl.value=state.__date||"";
+  tab=state.__tab||"all";
+  document.querySelectorAll("[data-t]").forEach(x=>x.setAttribute("aria-pressed",x.dataset.t===tab?"true":"false"));
+  footNote();paintPresetBtns();paintSlots();buildJump();build();
+}
+paintAll();
+document.querySelectorAll("button.big[data-ic]").forEach(b=>{
+  b.insertAdjacentHTML("afterbegin",bico(b.dataset.ic));
+});
+(async()=>{
+  await load(); paintAll();
+  if(!state.__helpSeen) openHelp();
+  else if(!state.__warnSeen) openWarn();
+})();
+</script>
