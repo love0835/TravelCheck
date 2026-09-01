@@ -7,6 +7,7 @@ import * as auth from "./auth.js";
 import * as trips from "./trips.js";
 import * as tpls from "./templates.js";
 import * as guide from "./guide.js";
+import * as diag from "./diag.js";
 import * as checklist from "./checklist.js";
 import * as store from "./store.js";
 
@@ -25,7 +26,7 @@ if (!isConfigured) {
 
 /* -------------------------------- 路由 ---------------------------------- */
 
-const VIEWS = ["view-auth", "view-trips", "view-new", "view-trip", "view-guide", "view-templates"];
+const VIEWS = ["view-auth", "view-trips", "view-new", "view-trip", "view-guide", "view-diag", "view-templates"];
 
 function showView(id) {
   VIEWS.forEach((v) => $(v).classList.toggle("on", v === id));
@@ -65,6 +66,12 @@ async function route() {
     if (!user) {
       auth.resetAuthView();
       showView("view-auth");
+      return;
+    }
+
+    if (head === "diag") {
+      showView("view-diag");
+      diag.render();
       return;
     }
 

@@ -49,11 +49,13 @@ function showLoadError(err) {
   box.innerHTML =
     "<b>載入失敗</b><br>" + esc(errText(err)) + "<br><br>" +
     '<button class="btn primary" id="btnRetryLoad">重試</button> ' +
-    '<button class="btn ghost" id="btnHardReset">清除本機登入狀態</button>' +
+    '<button class="btn ghost" id="btnHardReset">清除本機登入狀態</button> ' +
+    '<button class="btn ghost" id="btnDiag">連線診斷</button>' +
     '<p class="ghint" style="margin-top:10px">如果重試沒用，按右邊那顆會清掉這台裝置存的登入資訊並重新登入，' +
     "你的清單資料都在雲端，不會不見。</p>";
   document.getElementById("btnRetryLoad").onclick = () => render();
   document.getElementById("btnHardReset").onclick = () => hardReset();
+  document.getElementById("btnDiag").onclick = () => { location.hash = "#/diag"; };
 }
 
 // 清掉 supabase 存在瀏覽器裡的 session，用來解開卡住的登入狀態
