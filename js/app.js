@@ -10,6 +10,7 @@ import * as guide from "./guide.js";
 import * as diag from "./diag.js";
 import * as checklist from "./checklist.js";
 import * as store from "./store.js";
+import { withTimeout } from "./timing.js";
 
 const $ = (id) => document.getElementById(id);
 let user = null;
@@ -228,9 +229,19 @@ document.addEventListener("keydown", (e) => {
 
 trips.wire();
 (async () => {
-  const { data } = await sb.auth.getSession();
-  user = data?.session?.user || null;
-  paintUser();
-  if (user && (!location.hash || location.hash === "#/login")) location.hash = "#/trips";
-  await route();
+  try {
+    const { data, error } = await withTimeout(sb.auth.getSession(), 10000, "讀取登入狀態");
+    if (error) throw error;
+    user = data?.session?.user || null;
+    paintUser();
+    if (user && (!location.hash || location.hash === "#/login")) location.hash = "#/trips";
+    await route();
+  } catch (e) {
+    // 啟動失敗也不能留下一個永久的「載入中」畫面。
+    console.error(e);
+    user = null;
+    paintUser();
+    showView("view-auth");
+    auth.showError("啟動失敗：" + (e.message || e) + " 請重新整理；若仍失敗，請清除這個網站的登入資料後再登入。");
+  }
 })();

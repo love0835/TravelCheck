@@ -2,6 +2,7 @@
 // 登入與註冊。使用 Supabase Auth 的 Email + 密碼。
 // -----------------------------------------------------------------------------
 import { sb, errText } from "./supabase.js";
+import { defer } from "./timing.js";
 
 let mode = "in"; // "in" 登入 ／ "up" 註冊
 let onDone = null;
@@ -18,7 +19,12 @@ export async function signOut() {
 }
 
 export function onAuthChange(cb) {
-  sb.auth.onAuthStateChange((_evt, session) => cb(session?.user || null));
+  return sb.auth.onAuthStateChange((_evt, session) => {
+    // Supabase 會在持有 auth lock 時等待這個回呼結束。如果直接回傳
+    // cb() 的 Promise，cb 裡又發出需要 session 的資料庫查詢，兩邊會互等。
+    // 讓 auth 回呼立即結束，下一個 task 才開始載入頁面資料。
+    defer(cb, session?.user || null);
+  });
 }
 
 function paint() {
@@ -44,6 +50,10 @@ function msg(text, isErr) {
   const el = $("authMsg");
   el.textContent = text;
   el.className = isErr ? "msg err" : "msg";
+}
+
+export function showError(text) {
+  msg(text, true);
 }
 
 async function submit(e) {
