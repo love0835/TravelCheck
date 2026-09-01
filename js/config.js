@@ -10,7 +10,7 @@
 // 詳細步驟見 README.md。
 // -----------------------------------------------------------------------------
 export const SUPABASE_URL = "https://kbcufareazknsxrxkwzi.supabase.co";
-export const SUPABASE_KEY = "PASTE_YOUR_PUBLISHABLE_KEY_HERE";
+export const SUPABASE_KEY = "sb_publishable_0e_fwYSaS5ItO37JmWyLZQ_u5GkO10u";
 
 export const APP_VERSION = "v2";
 
